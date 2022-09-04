@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.sf.jsqlparser.util.validation.metadata.NamedObject.index;
-
 /**
  * @author Starry
  * @create 2022-09-02-6:57 PM
