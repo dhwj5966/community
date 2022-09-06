@@ -1,7 +1,5 @@
 package com.starry.community.mapper;
 
-import java.util.*;
-
 /**
  * @author Starry
  * @create 2022-09-01-9:31 PM
@@ -9,34 +7,32 @@ import java.util.*;
  */
 class Solution {
     public static void main(String[] args) {
-
         Solution solution = new Solution();
-        solution.findSubstring("barfoofoobarthefoobarman",new String[]{"bar","foo","the"});
+        int i = solution.nthUglyNumber(12);
+
     }
-    public List<Integer> findSubstring(String s, String[] words) {
-        List<Integer> res = new ArrayList<Integer>();//存放结果集
-        int m = words.length, n = words[0].length(), ls = s.length();
-        for (int i = 0; i < ls; i++) {//对于每个字母开头的可能性，都进行遍历判断
-            if (i + m * n > ls) { //越界判断
-                break;
+
+    public int nthUglyNumber(int n) {
+        if (n == 1) {
+            return 1;
+        }
+        //用来记录已经获取过的丑数
+        int p2 = 1, p3 = 1, p5 = 1;
+        int[] dp = new int[n + 1];
+        dp[1] = 1;
+        for (int i = 2; i <= n; i++) {
+            int num2 = dp[p2] * 2, num3 = dp[p3] * 3, num5 = dp[p5] * 5;
+            dp[i] = Math.min(Math.min(num2, num3), num5);
+            if (dp[i] == num2) {
+                p2++;
             }
-            Map<String, Integer> differ = new HashMap<String, Integer>();//差异集
-            //往差异集里丢s字符串的字符
-            for (int j = 0; j < m; j++) {
-                String word = s.substring(i + j * n, i + (j + 1) * n);
-                differ.put(word, differ.getOrDefault(word, 0) + 1);
+            if (dp[i] == num3) {
+                p3++;
             }
-            //利用words消字符
-            for (String word : words) {
-                differ.put(word, differ.getOrDefault(word, 0) - 1);
-                if (differ.get(word) == 0) {
-                    differ.remove(word);
-                }
-            }
-            if (differ.isEmpty()) {
-                res.add(i);
+            if (dp[i] == num5) {
+                p5++;
             }
         }
-        return res;
+        return dp[n];
     }
 }

@@ -1,6 +1,8 @@
 package com.starry.community.service.impl;
 
+import com.starry.community.bean.LoginTicket;
 import com.starry.community.bean.User;
+import com.starry.community.mapper.LoginTicketMapper;
 import com.starry.community.mapper.UserMapper;
 import com.starry.community.service.UserService;
 import com.starry.community.util.CommunityConstant;
@@ -39,16 +41,79 @@ public class UserServiceImpl implements UserService, CommunityConstant {
     @Autowired
     private TemplateEngine templateEngine;
 
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
+    @Override
+    public int updatePasswordById(int userId, String targetPassword) {
+        if (StringUtils.isBlank(targetPassword)) {
+            throw new IllegalArgumentException("不能将密码修改为空");
+        }
+        return userMapper.updatePasswordById(userId, targetPassword);
+    }
+
+    @Override
+    public int updateHeaderUrl(int userId, String headerUrl) {
+        if (StringUtils.isBlank(headerUrl)) {
+            throw new RuntimeException("头像Url不能为空");
+        }
+        return userMapper.updateHeaderById(userId, headerUrl);
+    }
+
+    public LoginTicket findLoginTicketByTicket(String ticket) {
+        return loginTicketMapper.selectByTicket(ticket);
+    }
+
+    @Override
+    public void logOut(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
+    }
+
+    public Map<String, Object> login(String username, String password, Long expiredSeconds) {
+        Map<String, Object> map = new HashMap<>();
+        //先验证参数格式
+        if (StringUtils.isBlank(username)) {
+            map.put("usernameMsg", "账号不能为空!");
+            return map;
+        }
+        if (StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码不能为空!");
+            return map;
+        }
+        //验证账号密码是否正确
+        User user = userMapper.selectByUsername(username);
+        if (user == null) {
+            map.put("usernameMsg", "账号不存在!");
+            return map;
+        }
+        if (user.getStatus() == 0) {
+            map.put("usernameMsg", "账号未激活!");
+            return map;
+        }
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (!user.getPassword().equals(password)) {
+            map.put("passwordMsg", "密码错误!");
+            return map;
+        }
+        //生成凭证
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicket.setTicket(CommunityUtil.generateUUID());
+        loginTicketMapper.insertLoginTicket(loginTicket);
+        map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
+
     @Override
     public User findUserById(int id) {
         return userMapper.selectById(id);
     }
 
-
-
     @Override
     public Map<String, Object> register(User user) {
-        Map<String,Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         //首先，对传入的user对象进行检验，是否格式不合法
         if (user == null) {
             throw new IllegalArgumentException("user 参数不能为空！");
@@ -113,6 +178,11 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         } else {
             return ACTIVATION_FALIURE;
         }
+    }
+
+    @Override
+    public User findUserByUsername(String username) {
+        return userMapper.selectByUsername(username);
     }
 }
 

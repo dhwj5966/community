@@ -21,4 +21,13 @@ public interface CommunityConstant {
      */
     int ACTIVATION_FALIURE = 2;
 
+    /**
+     * 默认的登录凭证超时时间
+     */
+    Long DEFAULT_EXPIRED_SECONDS = 3600l * 12;
+
+    /**
+     * 记住我状态下的登录凭证超时时间
+     */
+    Long REMEMBER_EXPIRED_SECONDS = 3600l * 12 * 60;
 }

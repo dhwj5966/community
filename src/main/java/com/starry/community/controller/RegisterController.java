@@ -55,7 +55,7 @@ public class RegisterController implements CommunityConstant {
     }
 
     /**
-     * 根据id和code,进行激活,不管激活结果如何，都跳转到
+     * 根据id和code,进行激活,不管激活结果如何，都跳转到operate-result页面，进行提示与跳转
      */
     //http://localhost:8080/community/activation/{id}/{activationCode}
     @RequestMapping(value = "/activation/{id}/{code}", method = RequestMethod.GET)
@@ -75,4 +75,6 @@ public class RegisterController implements CommunityConstant {
         }
         return "/site/operate-result";
     }
+
 }
+
