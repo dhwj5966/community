@@ -3,6 +3,7 @@ package com.starry.community.mapper;
 import com.starry.community.CommunityApplication;
 import com.starry.community.bean.LoginTicket;
 import com.starry.community.util.CommunityUtil;
+import com.starry.community.util.SensitiveWordsFilter;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,19 @@ import java.util.Date;
 class LoginTicketMapperTest {
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private SensitiveWordsFilter sensitiveWordsFilter;
+
+    @Test
+    void test() {
+        String s = "a~^政^府操★死你";
+        String filter = sensitiveWordsFilter.filter(s);
+        System.out.println(s + " -----> " + filter);
+    }
+
+
+
 
     @Test
     void insertLoginTicket() {

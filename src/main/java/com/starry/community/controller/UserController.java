@@ -141,6 +141,9 @@ public class UserController {
         return "redirect:/index";
     }
 
+    /**
+     * 根据文件名获取用户头像
+     */
     @GetMapping("/header/{filename}")
     public void getHeader(HttpServletResponse response, @PathVariable("filename") String filename) {
         filename = uploadPath + "/" + filename;
@@ -151,7 +154,7 @@ public class UserController {
         try {
             outputStream = response.getOutputStream();
             fileInputStream = new FileInputStream(filename);
-            byte[] buffer = new byte[5 * 1024];
+            byte[] buffer = new byte[10 * 1024];
             int l = 0;
             while ((l = fileInputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, l);

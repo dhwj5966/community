@@ -36,7 +36,7 @@
         update user set header_url=#{headerUrl} where id=#{id}
     </update>
 
-    <update id="updatePasswordById"  >
+    <update id="updatePasswordById">
         update user set password=#{password} where id=#{id}
     </update>
 

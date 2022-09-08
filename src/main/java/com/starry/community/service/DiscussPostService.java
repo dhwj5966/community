@@ -10,6 +10,8 @@ import java.util.List;
  * @Describe discuss_post的Service层
  */
 public interface DiscussPostService {
+
+    DiscussPost findDiscussPostById(int id);
     /**
      * 根据userId查询DiscussPost，如果userId为0，则查询全部userId的DiscussPost，不包括status=2的DiscussPost
      * @param userId
@@ -25,4 +27,11 @@ public interface DiscussPostService {
      * @return 记录数
      */
     int findDiscussPostsPostRows(int userId);
+
+    /**
+     * 传进来的帖子只有title和content两个属性
+     * @param discussPost
+     * @return
+     */
+    int addDiscussPosts(DiscussPost discussPost);
 }

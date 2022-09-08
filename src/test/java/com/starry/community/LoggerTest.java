@@ -29,6 +29,9 @@ public class LoggerTest {
     @Autowired
     private TemplateEngine templateEngine;
 
+
+
+
     @Test
     public void test2() {
         //创造要发送的数据

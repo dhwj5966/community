@@ -32,8 +32,10 @@ class DiscussPostMapperTest {
 
     @Test
     void selectDiscussPostsByUserId() {
-        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPostsByUserId(111, 0, 3);
-        discussPosts.forEach(System.out::println);
+        DiscussPost post = new DiscussPost();
+        post.setUserId(153);
+        post.setContent("阿巴");
+        discussPostMapper.insertDiscussPost(post);
     }
 
     @Test

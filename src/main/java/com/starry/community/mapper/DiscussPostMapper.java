@@ -15,6 +15,13 @@ import java.util.List;
 public interface DiscussPostMapper {
 
     /**
+     * 插入新post到数据库的discusspost表
+     * @param discussPost
+     * @return
+     */
+    int insertDiscussPost(DiscussPost discussPost);
+
+    /**
      *
      * @param userId 用来查询的userId，如果为0则代表查询全部
      * @param offset 查询结果的第多少条开始
@@ -31,4 +38,5 @@ public interface DiscussPostMapper {
     int selectDiscussPostRows(@Param("userId") int userId);
 
 
+    DiscussPost selectDiscussPostById(int id);
 }
