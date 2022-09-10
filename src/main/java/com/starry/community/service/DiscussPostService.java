@@ -34,4 +34,12 @@ public interface DiscussPostService {
      * @return
      */
     int addDiscussPosts(DiscussPost discussPost);
+
+    /**
+     * 更新指定id的discussPost的commentCount
+     * @param id
+     * @param commentCount
+     * @return
+     */
+    int updateCommentCountById(int id,int commentCount);
 }

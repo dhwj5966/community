@@ -4,24 +4,77 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.starry.community.mapper.CommentMapper">
     <sql id="selectField">
+        id,user_id,entity_type,entity_id,target_id,content,status,create_time
+    </sql>
+
+    <sql id="insertField">
         user_id,entity_type,entity_id,target_id,content,status,create_time
     </sql>
+
+
+
+    <resultMap id="selectCommentsWithChildrenComments" type="com.starry.community.bean.Comment">
+        <id property="id" column="id"></id>
+        <result property="userId" column="user_id"></result>
+        <result property="entityType" column="entity_type"></result>
+        <result property="entityId" column="entity_id"></result>
+        <result property="targetId" column="target_id"></result>
+        <result property="content" column="content"></result>
+        <result property="status" column="status"></result>
+        <result property="createTime" column="create_time"></result>
+        <association
+            property="user"
+            javaType="com.starry.community.bean.User"
+            fetchType="eager"
+            select="com.starry.community.mapper.UserMapper.selectById"
+            column="user_id">
+        </association>
+        <association
+            property="commentCount"
+            column="{entityType=childComment,entityId=id}"
+            select="com.starry.community.mapper.CommentMapper.selectCommentRows">
+        </association>
+        <association
+            property="targetUser"
+            select="com.starry.community.mapper.UserMapper.selectById"
+            column="target_id">
+        </association>
+        <collection
+            property="comments"
+            column="{entityType=childComment,entityId=id,offset=begin,limit=bignumber}"
+            ofType="com.starry.community.bean.Comment"
+            select="com.starry.community.mapper.CommentMapper.selectComments">
+        </collection>
+    </resultMap>
 
     <select id="selectCommentRows" resultType="int">
         select count(*)
         from comment
         where status=0
-        and entity_type = #{entityType}
-        and entity_id=#{entityId}
+        <if test="entityType != 0">
+            and entity_type = #{entityType}
+            <if test="entityId != 0">
+                and entity_id=#{entityId}
+            </if>
+        </if>
     </select>
 
-    <select id="selectComments" resultType="com.starry.community.bean.Comment">
-        select <include refid="selectField"></include>
+    <select id="selectComments" resultMap="selectCommentsWithChildrenComments">
+        select <include refid="selectField"></include>,2 as childComment,10000000 as bignumber,0 as begin
         from comment
         where status=0
-        and entity_type = #{entityType}
-        and entity_id=#{entityId}
+        <if test="entityType!=0">
+            and entity_type = #{entityType}
+            <if test="entityId!=0">
+                and entity_id=#{entityId}
+            </if>
+        </if>
         order by create_time asc
         limit #{offset},#{limit}
     </select>
+
+    <insert id="insertComment" parameterType="com.starry.community.bean.Comment">
+        insert into comment (<include refid="insertField"></include>)
+        values (#{userId},#{entityType},#{entityId},#{targetId},#{content},#{status},#{createTime})
+    </insert>
 </mapper>

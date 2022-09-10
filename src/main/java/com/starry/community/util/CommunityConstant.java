@@ -30,4 +30,14 @@ public interface CommunityConstant {
      * 记住我状态下的登录凭证超时时间
      */
     Long REMEMBER_EXPIRED_SECONDS = 3600l * 12 * 60;
+
+    /**
+     * 帖子的评论
+     */
+    int ENTITY_TYPE_POST=1;
+
+    /**
+     * 评论的回复
+     */
+    int ENTITY_TYPE_COMMENT=2;
 }

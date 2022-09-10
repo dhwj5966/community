@@ -52,4 +52,9 @@ public class DiscussPostServiceImpl implements DiscussPostService {
         //存入数据库
         return discussPostMapper.insertDiscussPost(discussPost);
     }
+
+    @Override
+    public int updateCommentCountById(int id, int commentCount) {
+        return discussPostMapper.updateCommentCountById(commentCount,id);
+    }
 }

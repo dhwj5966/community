@@ -1,7 +1,10 @@
 package com.starry.community.controller;
 
+import com.starry.community.bean.Comment;
 import com.starry.community.bean.DiscussPost;
+import com.starry.community.bean.Page;
 import com.starry.community.bean.User;
+import com.starry.community.service.CommentService;
 import com.starry.community.service.DiscussPostService;
 import com.starry.community.service.UserService;
 import com.starry.community.util.CommunityUtil;
@@ -13,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Starry
@@ -28,13 +32,17 @@ public class DiscussPostController {
     private HostHolder hostHolder;
     @Autowired
     private UserService userService;
+    @Autowired
+    private CommentService commentService;
 
     /**
+     * 跳转到帖子详情页
      * 根据帖子ID查到DiscussPost对象，并封装到Model里
+     * 还要查到所有的评论信息
      * @return
      */
     @RequestMapping(value = "/showPostDetail/{postId}", method = RequestMethod.GET)
-    public String showPostDeatil(@PathVariable("postId")int postId, Model model) {
+    public String showPostDeatil(@PathVariable("postId")int postId, Model model, Page page) {
         DiscussPost discussPost = discussPostService.findDiscussPostById(postId);
         if (discussPost == null) {
             throw new RuntimeException();
@@ -43,6 +51,15 @@ public class DiscussPostController {
         if (user == null) {
             throw new RuntimeException();
         }
+        if (page == null) {
+            throw new RuntimeException();
+        }
+        page.setLimit(5);
+        page.setPath("/discussPost/showPostDetail/" + postId);
+        page.setRows(discussPost.getCommentCount());
+        List<Comment> comments = commentService.findComments(1,
+                discussPost.getId(),page.getOffset(),page.getLimit());
+        model.addAttribute("comments",comments);
         model.addAttribute("post",discussPost);
         model.addAttribute("user",user);
         return "/site/discuss-detail";
@@ -52,6 +69,7 @@ public class DiscussPostController {
 
 
     /**
+     * 发布post
      * 如果用户未登录，发帖失败
      * 如果用户登录成功
      */
