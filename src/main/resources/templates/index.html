@@ -27,8 +27,9 @@
 								<a class="nav-link" th:href="@{/index}">首页</a>
 							</li>
 							<li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser!=null}">
-                                <a class="nav-link position-relative" href="site/letter.html">消息<span
-                                        class="badge badge-danger">12</span></a>
+                                <a class="nav-link position-relative" th:href="@{/message/getPage}">消息
+									<span class="badge badge-danger" th:if="${unread != 0}"
+										  th:text="${unread}"></span></a>
                             </li>
                             <li class="nav-item ml-3 btn-group-vertical" th:if="${loginUser==null}">
                                 <a class="nav-link" th:href="@{/register}">注册</a>
@@ -249,6 +250,6 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
 	<script th:src="@{/js/global.js}"></script>
-	<script th:src="@{js/index.js}"></script>
+	<script th:src="@{/js/index.js}"></script>
 </body>
 </html>

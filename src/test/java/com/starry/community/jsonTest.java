@@ -14,11 +14,15 @@ import java.util.Map;
 public class jsonTest {
     @Test
     public void test() {
-        JSONObject json = new JSONObject();
-        json.put("code", 200);
-        json.put("msg","what are you fucking saying?");
-        json.put("name","wzh");
-        System.out.println(json.toJSONString());
+        String s = "asdaskhgfdaisfgaeihdfgasid1298736428735rgasikhd早点饭2iy早上空腹喝酒吧撒旦解放和v";
+        char[] chars = s.toCharArray();
+        long start = System.currentTimeMillis();
+        for (long l = 0; l < 1_0000_0000l; l++) {
+            for (int i = 0; i < s.length(); i++) {
+                char c = chars[i];
+            }
+        }
+        System.out.println(System.currentTimeMillis() - start);
     }
 
 

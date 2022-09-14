@@ -2,12 +2,15 @@ package com.starry.community.controller;
 
 import com.starry.community.bean.DiscussPost;
 import com.starry.community.bean.Page;
+import com.starry.community.mapper.MessageMapper;
 import com.starry.community.service.DiscussPostService;
+import com.starry.community.service.MessageService;
 import com.starry.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +28,8 @@ public class HomeController {
     private DiscussPostService discussPostService;
     @Autowired
     private UserService userService;
+//    @Autowired
+//    private MessageService messageService;
 
     /**
      *
@@ -51,5 +56,10 @@ public class HomeController {
         model.addAttribute("discussPosts",discussPosts);
         model.addAttribute("page",page);
         return "index";
+    }
+
+    @RequestMapping(value = "/error",method = RequestMethod.GET)
+    public String getErrorPage() {
+        return "/error/500";
     }
 }

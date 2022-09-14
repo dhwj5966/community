@@ -11,6 +11,9 @@ import java.util.Map;
  * @Describe
  */
 public interface UserService {
+
+
+
     /**
      * 修改指定userId的用户的密码
      */

@@ -4,6 +4,7 @@ import com.starry.community.bean.LoginTicket;
 
 
 import com.starry.community.bean.User;
+import com.starry.community.service.MessageService;
 import com.starry.community.service.UserService;
 import com.starry.community.util.CookieUtil;
 import com.starry.community.util.HostHolder;
@@ -20,7 +21,8 @@ import java.util.Date;
 /**
  * @author Starry
  * @create 2022-09-06-12:00 AM
- * @Describe
+ * @Describe 在执行handler之前，根据Cookie检查用户是否是已登录用户，如果是则把user对象存放到HostHolder中
+ * 并在使用完后clear HostHolder
  */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
@@ -28,6 +30,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     private UserService userService;
     @Autowired
     private HostHolder hostHolder;
+    @Autowired
+    private MessageService messageService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -52,11 +56,13 @@ public class LoginInterceptor implements HandlerInterceptor {
         User user = hostHolder.getUser();
         if (user != null && modelAndView != null) {
             modelAndView.addObject("loginUser", user);
+            int unreadMessagesCount = messageService.findUnreadMessagesCount(user.getId(), null);
+            modelAndView.addObject("unread",unreadMessagesCount);
         }
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        hostHolder.clear();
+        hostHolder.clear();//help GC
     }
 }
