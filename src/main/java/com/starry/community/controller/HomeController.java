@@ -4,6 +4,7 @@ import com.starry.community.bean.DiscussPost;
 import com.starry.community.bean.Page;
 import com.starry.community.mapper.MessageMapper;
 import com.starry.community.service.DiscussPostService;
+import com.starry.community.service.LikeService;
 import com.starry.community.service.MessageService;
 import com.starry.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class HomeController {
     private UserService userService;
 //    @Autowired
 //    private MessageService messageService;
+    @Autowired
+    private LikeService likeService;
 
     /**
      *
@@ -50,6 +53,7 @@ public class HomeController {
                 Map<String,Object> map = new HashMap<>();
                 map.put("post",discussPost);
                 map.put("user",userService.findUserById(discussPost.getUserId()));
+                map.put("like", likeService.findEntityLikeCount(1, discussPost.getId()));
                 discussPosts.add(map);
             }
         }

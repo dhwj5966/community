@@ -2,6 +2,7 @@ package com.starry.community.bean;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Date;
  * @Describe
  */
 @Data
-public class User {
+public class User implements Serializable {
     private int id;
     private String username;
     private String password;

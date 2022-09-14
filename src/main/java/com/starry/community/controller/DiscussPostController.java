@@ -6,7 +6,9 @@ import com.starry.community.bean.Page;
 import com.starry.community.bean.User;
 import com.starry.community.service.CommentService;
 import com.starry.community.service.DiscussPostService;
+import com.starry.community.service.LikeService;
 import com.starry.community.service.UserService;
+import com.starry.community.util.CommunityConstant;
 import com.starry.community.util.CommunityUtil;
 import com.starry.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +27,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/discussPost")
-public class DiscussPostController {
+public class DiscussPostController implements CommunityConstant {
     @Autowired
     private DiscussPostService discussPostService;
     @Autowired
@@ -34,6 +36,8 @@ public class DiscussPostController {
     private UserService userService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private LikeService likeService;
 
     /**
      * 跳转到帖子详情页
@@ -43,6 +47,7 @@ public class DiscussPostController {
      */
     @RequestMapping(value = "/showPostDetail/{postId}", method = RequestMethod.GET)
     public String showPostDeatil(@PathVariable("postId")int postId, Model model, Page page) {
+        User curUser = hostHolder.getUser();
         DiscussPost discussPost = discussPostService.findDiscussPostById(postId);
         if (discussPost == null) {
             throw new RuntimeException();
@@ -57,11 +62,27 @@ public class DiscussPostController {
         page.setLimit(5);
         page.setPath("/discussPost/showPostDetail/" + postId);
         page.setRows(discussPost.getCommentCount());
-        List<Comment> comments = commentService.findComments(1,
+        List<Comment> comments = commentService.findComments(ENTITY_TYPE_POST,
                 discussPost.getId(),page.getOffset(),page.getLimit());
-        model.addAttribute("comments",comments);
-        model.addAttribute("post",discussPost);
-        model.addAttribute("user",user);
+        for (Comment comment : comments) {
+            comment.setLike(curUser == null ? 0 :
+                    likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT,comment.getId()));
+            comment.setLikeStatus(
+                    likeService.isUserLikeEntity(ENTITY_TYPE_COMMENT,comment.getId(), curUser.getId()));
+            if (comment.getComments() != null) {
+                for (Comment reply : comment.getComments()) {
+                    reply.setLike(likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT, reply.getId()));
+                    reply.setLikeStatus(curUser == null ? 0 :
+                            likeService.isUserLikeEntity(ENTITY_TYPE_COMMENT, reply.getId(), curUser.getId()));
+                }
+            }
+        }
+        model.addAttribute("comments", comments);
+        model.addAttribute("post", discussPost);
+        model.addAttribute("user", user);
+        model.addAttribute("like", likeService.findEntityLikeCount(1, postId));
+        int likeStatus = curUser == null ? 0 : likeService.isUserLikeEntity(ENTITY_TYPE_POST,postId, curUser.getId());
+        model.addAttribute("likeStatus",likeStatus);
         return "/site/discuss-detail";
     }
 

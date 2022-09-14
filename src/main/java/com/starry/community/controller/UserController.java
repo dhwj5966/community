@@ -2,6 +2,7 @@ package com.starry.community.controller;
 
 import com.starry.community.annotation.CheckLogin;
 import com.starry.community.bean.User;
+import com.starry.community.service.LikeService;
 import com.starry.community.service.UserService;
 import com.starry.community.util.CommunityUtil;
 import com.starry.community.util.HostHolder;
@@ -49,6 +50,9 @@ public class UserController {
     @Autowired
     private HostHolder hostHolder;
 
+    @Autowired
+    private LikeService likeService;
+
     @CheckLogin
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
@@ -88,6 +92,18 @@ public class UserController {
         //将登录凭证无效化
         userService.logOut(ticket);
         return "redirect:/login";
+    }
+
+    @RequestMapping(value = "/profile/{userId}",method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId,Model model) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在，无法查看个人主页");
+        }
+        long likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("user",user);
+        model.addAttribute("likeCount",likeCount);
+        return "/site/profile";
     }
 
 

@@ -39,4 +39,8 @@ public class Comment {
     //评论的评论数
     private int commentCount;
     private User targetUser;
+    //点赞数量
+    private long like;
+    //当前用户的点赞状态
+    private int likeStatus;
 }
