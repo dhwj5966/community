@@ -32,12 +32,22 @@ public interface CommunityConstant {
     Long REMEMBER_EXPIRED_SECONDS = 3600l * 12 * 60;
 
     /**
-     * 帖子的评论
+     * 实体类型-评论
      */
-    int ENTITY_TYPE_POST=1;
+    int ENTITY_TYPE_POST = 1;
 
     /**
-     * 评论的回复
+     * 实体类型-回复
      */
-    int ENTITY_TYPE_COMMENT=2;
+    int ENTITY_TYPE_COMMENT = 2;
+
+    /**
+     * 实体类型-用户
+     */
+    int ENTITY_TYPE_USER = 3;
+
+    /**
+     * 实体类型-帖子
+     */
+    int ENTITY_TYPE_DISCUSSPOST = 4;
 }

@@ -29,11 +29,11 @@
 				</h6>
 				<!-- 作者 -->
 				<div class="media pb-3 border-bottom">
-					<a href="profile.html">
+					<a th:href="@{|/user/profile/${user.id}|}">
 						<img th:src="@{${user.headerUrl}}" class="align-self-start mr-4 rounded-circle user-header" alt="用户头像" >
 					</a>
 					<div class="media-body">
-						<div class="mt-0 text-warning" th:text="${user.username}"></div>
+						<a th:href="@{|/user/profile/${user.id}|}"><div class="mt-0 text-warning" th:text="${user.username}"></div></a>
 						<div class="text-muted mt-3">
 							发布于 <b th:text="${#dates.format(post.createTime,'yyyy-MM-dd HH:mm:ss')}"></b>
 							<ul class="d-inline float-right">
@@ -68,13 +68,15 @@
 				<ul class="list-unstyled mt-4" th:each="postComment,postCommentStat:${comments}">
 					<!-- 第1条回帖 -->
 					<li class="media pb-3 pt-3 mb-3 border-bottom">
-						<a href="profile.html">
+						<a th:href="@{|/user/profile/${postComment.user.id}|}">
 							<img th:src="${postComment.user.headerUrl}"
 								 class="align-self-start mr-4 rounded-circle user-header" alt="用户头像" >
 						</a>
 						<div class="media-body">
 							<div class="mt-0">
-								<span class="font-size-12 text-success" th:text="${postComment.user.username}">掉脑袋切切</span>
+								<a th:href="@{|/user/profile/${postComment.user.id}|}">
+									<span class="font-size-12 text-success" th:text="${postComment.user.username}">掉脑袋切切</span>
+								</a>
 								<span class="badge badge-secondary float-right floor"
 									  th:text="${postCommentStat.count} + (${page.current}- 1) * ${page.limit}">1#</span>
 							</div>
@@ -104,12 +106,19 @@
 									<div>
 										<!--如果是一条针对post的comment-->
 										<span th:if="${childComment.targetId == 0}">
-											<b class="text-info" th:text="${childComment.user.username}">寒江雪</b>:&nbsp;&nbsp;
+											<a th:href="@{|/user/profile/${childComment.user.id}|}">
+												<b class="text-info" th:text="${childComment.user.username}">寒江雪</b>
+											</a>:&nbsp;&nbsp;
 										</span>
 										<!--如果是一条针对postComment的comment-->
 										<span th:if="${childComment.targetId != 0}">
+											<a th:href="@{|/user/profile/${childComment.user.id}|}">
 											<i class="text-info" th:text="${childComment.user.username}">Sissi</i>
-											回复 <b class="text-info" th:text="${childComment.targetUser.username}">寒江雪</b>:&nbsp;&nbsp;
+											</a>
+											回复
+											<a th:href="@{|/user/profile/${childComment.targetUser.id}|}">
+											<b class="text-info" th:text="${childComment.targetUser.username}">寒江雪</b>
+											</a>:&nbsp;&nbsp;
 										</span>
 										<span th:text="${childComment.content}">这个是直播时间哈，觉得晚的话可以直接看之前的完整录播的~</span>
 									</div>

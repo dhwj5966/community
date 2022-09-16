@@ -124,7 +124,7 @@
 				<ul class="list-unstyled">
 
 					<li class="media pb-3 pt-3 mb-3 border-bottom" th:each="map:${discussPosts}">
-						<a href="site/profile.html">
+						<a th:href="@{|/user/profile/${map.user.id}|}">
 <!--							<-- 头像URL-->
 							<img th:src="${map.user.headerUrl}" class="mr-4 rounded-circle" alt="用户头像" style="width:50px;height:50px;">
 						</a>
@@ -136,7 +136,7 @@
 								<span class="badge badge-secondary bg-danger" th:if="${map.post.status==1}">精华</span>
 							</h6>
 							<div class="text-muted font-size-14">
-								<u class="mr-3 font-size-14" th:text="${map.user.username}"></u> 发布于 <b th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}"> </b>
+								<a class="mr-3 font-size-14" th:text="${map.user.username}" th:href="@{|/user/profile/${map.user.id}|}"></a> 发布于 <b th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}"> </b>
 								<ul class="d-inline float-right">
 									<li class="d-inline ml-2 font-size-14">赞 <b th:text="${map.like}"></b></li>
 									<li class="d-inline ml-2">|</li>

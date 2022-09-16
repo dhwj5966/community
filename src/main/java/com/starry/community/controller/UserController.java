@@ -2,8 +2,10 @@ package com.starry.community.controller;
 
 import com.starry.community.annotation.CheckLogin;
 import com.starry.community.bean.User;
+import com.starry.community.service.FollowService;
 import com.starry.community.service.LikeService;
 import com.starry.community.service.UserService;
+import com.starry.community.util.CommunityConstant;
 import com.starry.community.util.CommunityUtil;
 import com.starry.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +31,7 @@ import java.io.OutputStream;
  */
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements CommunityConstant {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     //文件上传的路径，这里不要写死，因为开发是在windows环境下，部署是在linux环境，最终部署的时候只需要改配置文件就可以了。
@@ -52,6 +54,8 @@ public class UserController {
 
     @Autowired
     private LikeService likeService;
+    @Autowired
+    private FollowService followService;
 
     @CheckLogin
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
@@ -94,6 +98,10 @@ public class UserController {
         return "redirect:/login";
     }
 
+    /**
+     *
+     * @param userId 个人主页所属的用户的id
+     */
     @RequestMapping(value = "/profile/{userId}",method = RequestMethod.GET)
     public String getProfilePage(@PathVariable("userId") int userId,Model model) {
         User user = userService.findUserById(userId);
@@ -103,6 +111,17 @@ public class UserController {
         long likeCount = likeService.findUserLikeCount(userId);
         model.addAttribute("user",user);
         model.addAttribute("likeCount",likeCount);
+        //粉丝数量
+        long followersCount = followService.getFollowersCount(userId);
+        //关注者数量
+        long followeeCount = followService.getFolloweeCount(userId, ENTITY_TYPE_USER);
+        boolean followStatus = false;
+        if (hostHolder.getUser() != null) {
+            followStatus = followService.getFollowStatus(hostHolder.getUser().getId(),ENTITY_TYPE_USER,userId);
+        }
+        model.addAttribute("followersCount",followersCount);
+        model.addAttribute("followeeCount",followeeCount);
+        model.addAttribute("followStatus",followStatus);
         return "/site/profile";
     }
 
