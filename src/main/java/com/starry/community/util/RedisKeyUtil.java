@@ -11,7 +11,7 @@ public class RedisKeyUtil {
     private static final String PREFIX_USER_LIKE = "like:user";
     private static final String PREFIX_FOLLOWEE = "followee";
     private static final String PREFIX_FOLLOWER = "follower";
-
+    private static final String PREFIX_KAPTCHA = "kaptcha";
     /**
      * 根据entityType和entityId，获取redis中的key
      * 如entityType = 3，entityId = 9 -> return like:entity:3:9
@@ -46,6 +46,10 @@ public class RedisKeyUtil {
      */
     public static String getFolloweeKey(int userId, int entityType) {
         return PREFIX_FOLLOWEE + SPLIT + userId + SPLIT + entityType;
+    }
+
+    public static String getKaptchaKey(String randomString) {
+        return PREFIX_KAPTCHA + SPLIT + randomString;
     }
 
 }

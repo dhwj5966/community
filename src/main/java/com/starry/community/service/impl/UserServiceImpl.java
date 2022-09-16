@@ -11,6 +11,7 @@ import com.starry.community.util.EmailSender;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -43,6 +44,10 @@ public class UserServiceImpl implements UserService, CommunityConstant {
 
     @Autowired
     private LoginTicketMapper loginTicketMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+
 
     @Override
     public int updatePasswordById(int userId, String targetPassword) {
