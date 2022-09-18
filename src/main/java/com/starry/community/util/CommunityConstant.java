@@ -32,12 +32,12 @@ public interface CommunityConstant {
     Long REMEMBER_EXPIRED_SECONDS = 3600l * 12 * 60;
 
     /**
-     * 实体类型-评论
+     * 实体类型-帖子，在评论中代表评论的对象是帖子
      */
     int ENTITY_TYPE_POST = 1;
 
     /**
-     * 实体类型-回复
+     * 实体类型-评论,在评论中代表评论的对象是帖子的评论
      */
     int ENTITY_TYPE_COMMENT = 2;
 

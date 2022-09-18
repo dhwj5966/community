@@ -34,6 +34,9 @@ public class ServiceLogAspect {
         //用户ip[0.0.0.1] 在 时间  访问了 [...service.fun1()]
         //获取request，原理或许也是ThreadLocal？
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getRemoteHost();
         String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());

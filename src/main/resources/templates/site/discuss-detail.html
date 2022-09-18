@@ -40,7 +40,7 @@
 <!--								<li class="d-inline ml-2"><a href="#" class="text-primary">赞 11</a></li>-->
 								<button type="button" class=""th:classappend="${likeStatus == 0} ? 'btn btn-primary' : 'btn btn-success' "
 										href="javascript:;"
-										th:onclick="|like(this,1,${post.id},${user.id});|" id="btn1">
+										th:onclick="|like(this,1,${post.id},${user.id},${post.id});|" id="btn1">
 									<b id="postLikeStatus" th:text="${likeStatus == 0} ? '赞同' : '已点赞'">赞同</b>
 								<i th:text="${like}" id="postLikeCount"></i>
 								</button>
@@ -89,7 +89,7 @@
 								<ul class="d-inline float-right">
 									<button type="button" class=""th:classappend="${postComment.likeStatus == 0} ? 'btn btn-info btn-sm' : 'btn btn-success btn-sm' "
 											href="javascript:;"
-											th:onclick="|like(this,2,${postComment.id},${postComment.user.id});|" id="btn2">
+											th:onclick="|like(this,2,${postComment.id},${postComment.user.id},${post.id});|" id="btn2">
 										<b id="commentLike" th:text="${postComment.likeStatus == 0} ? '赞同' : '已点赞'">赞同</b>
 										<i th:text="${postComment.like}" id="commentLikeCount"></i>
 									</button>
@@ -128,7 +128,7 @@
 											<li class="d-inline ml-2">
 												<a class="text-primary"
 													 href="javascript:;"
-													 th:onclick="|like(this,2,${childComment.id},${childComment.user.id});|"
+													 th:onclick="|like(this,2,${childComment.id},${childComment.user.id},${post.id});|"
 													>
 													<b  th:text="${childComment.likeStatus == 0} ? '赞同' : '已点赞'">
 

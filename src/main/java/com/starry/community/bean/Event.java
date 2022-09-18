@@ -13,14 +13,14 @@ import java.util.Map;
 public class Event {
 
     /**
-     * 事件所属的主题
+     * 事件的类型
      */
     private String topic;
 
     /**
      * 引起事件的user的id
      */
-    private String userId;
+    private int userId;
 
     /**
      * 事件针对的(点赞、评论、关注)的实体类型
@@ -51,11 +51,11 @@ public class Event {
         return this;
     }
 
-    public String getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public Event setUserId(String userId) {
+    public Event setUserId(int userId) {
         this.userId = userId;
         return this;
     }

@@ -40,4 +40,11 @@ public interface CommentMapper {
      * @return
      */
     int insertComment(Comment comment);
+
+    /**
+     * 根据Comment的id，查询Comment对象，如果不存在则返回null
+     * @param id
+     * @return
+     */
+    Comment selectCommentById(int id);
 }

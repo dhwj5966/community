@@ -17,7 +17,7 @@ public class EventProducer {
     private KafkaTemplate kafkaTemplate;
 
     /**
-     * 接收事件对象，将事件对象event转换为Json字符串，并存入事件的topic中
+     * 接收事件对象，将事件对象event转换为Json字符串，并存入Kafka的topic中
      * @param event
      */
     public void fireEvent(Event event) {

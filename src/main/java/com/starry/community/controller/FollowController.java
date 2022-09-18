@@ -1,8 +1,10 @@
 package com.starry.community.controller;
 
 import com.starry.community.annotation.CheckLogin;
+import com.starry.community.bean.Event;
 import com.starry.community.bean.Page;
 import com.starry.community.bean.User;
+import com.starry.community.event.EventProducer;
 import com.starry.community.service.FollowService;
 import com.starry.community.service.UserService;
 import com.starry.community.util.CommunityConstant;
@@ -32,6 +34,8 @@ public class FollowController implements CommunityConstant {
     private HostHolder hostHolder;
     @Autowired
     private UserService userService;
+    @Autowired
+    private EventProducer eventProducer;
 
     /**
      * 用户关注实体
@@ -45,6 +49,16 @@ public class FollowController implements CommunityConstant {
     public String follow(int entityType, int entityId) {
         User user = hostHolder.getUser();
         followService.follow(user.getId(), entityType, entityId);
+
+        //关注成功后，给被关注的用户发通知
+        Event event = new Event()
+                .setUserId(user.getId())
+                .setTopic(TOPIC_FOLLOW)
+                .setEntityType(entityType)
+                .setEntityId(entityId)
+                .setEntityUserId(entityId);
+        eventProducer.fireEvent(event);
+
         return CommunityUtil.getJsonString(0,"关注成功！");
     }
 
