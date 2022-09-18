@@ -25,10 +25,12 @@
 								<span class="badge badge-danger" th:if="${unread != 0}" th:text="${unread}">3</span></a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link position-relative" href="notice.html">系统通知<span class="badge badge-danger">27</span></a>
+							<a class="nav-link position-relative" th:href="@{/message/notification/list}">系统通知
+								<span class="badge badge-danger" th:if="${unreadNotification != 0}"
+								th:text="${unreadNotification}">27</span></a>
 						</li>
 					</ul>
-					<button type="button" class="btn btn-primary btn-sm position-absolute rt-0" data-toggle="modal" data-target="#sendModal">发私信</button>
+					<button type="button" class="btn btn-primary position-absolute rt-0" data-toggle="modal" data-target="#sendModal">发私信</button>
 				</div>
 				<!-- 弹出框 -->
 				<div class="modal fade" id="sendModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -88,14 +90,14 @@
 									  th:text="${#dates.format(map.conversation.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
 							</h6>
 							<div>
-								<a th:if="${map.conversation.fromId != loginUser.id}" th:text="${map.targetUser.username}"
-								   th:href="@{|/message/getDetailPage/${map.conversation.conversationId}/${map.targetUser.id}|}">
+								<a th:href="@{|/message/getDetailPage/${map.conversation.conversationId}/${map.targetUser.id}|}">
+									<i th:if="${map.conversation.fromId != loginUser.id}" th:text="${map.targetUser.username}">
+									</i>
+									<i th:if="${map.conversation.fromId != loginUser.id}">:
+									</i>
+									<i th:utext="${map.conversation.content}">米粉车, 你来吧!</i>
 								</a>
-								<a th:if="${map.conversation.fromId != loginUser.id}"
-								   th:href="@{|/message/getDetailPage/${map.conversation.conversationId}/${map.targetUser.id}|}">:
-								</a>
-								<a th:href="@{|/message/getDetailPage/${map.conversation.conversationId}/${map.targetUser.id}|}"
-								   th:utext="${map.conversation.content}">米粉车, 你来吧!</a>
+
 								<ul class="d-inline font-size-12 float-right">
 									<li class="d-inline ml-2"><a href="#" class="text-primary">
 										共<span th:text="${map.messageCount}"></span>条会话</a></li>

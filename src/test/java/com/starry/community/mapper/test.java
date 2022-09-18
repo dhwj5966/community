@@ -1,5 +1,6 @@
 package com.starry.community.mapper;
 
+import com.starry.community.bean.Message;
 import com.starry.community.bean.User;
 import com.starry.community.service.LikeService;
 import com.starry.community.util.RedisKeyUtil;
@@ -29,12 +30,13 @@ public class test {
     private RedisTemplate redisTemplate;
     @Autowired
     private LikeService likeService;
+    @Autowired
+    private MessageMapper messageMapper;
+
     @Test
     public void test1() {
-        //绑定
-        Object o = null;
-        User u = (User) o;
-        System.out.println(u);
+        Message message = messageMapper.selectLatestNotificationByUserIdAndTopic(154, "comment");
+        System.out.println(message);
     }
 
     @Test
@@ -50,48 +52,81 @@ public class test {
 
     @Test
     public void test3() {
-        redisTemplate.opsForValue().set("gg",null);
+        HashMap<Object, Object> map = new HashMap<>();
+        System.out.println(map.get("aa"));
     }
 
 }
 
-class Solution {
+class MapSum {
     public static void main(String[] args) {
-        Solution solution = new Solution();
-        boolean palindrome = solution.isPalindrome("0P");
 
     }
-    public boolean isPalindrome(String s) {
-        //双指针，时间复杂度O(n),空间复杂度O(1)
-        char[] chars = s.toCharArray();
-        int left = 0;
-        int right = chars.length - 1;
-        while (left < right) {
-            while (left < right && !isValid(chars[left])) {
-                left++;
+    /**
+     用字典树
+     */
+    private TreeNode root;
+    /** Initialize your data structure here. */
+    public MapSum() {
+        root = new TreeNode(0);
+    }
+
+    public void insert(String key, int val) {
+        TreeNode temp = root;
+        for (int i = 0; i < key.length(); i++) {
+            char c = key.charAt(i);
+            TreeNode next = temp.children[c - 'a'];
+            if (next == null) {
+                next = new TreeNode(val);
+                temp.children[c - 'a'] = next;
+            } else {
+                next.count += val;
             }
-            while (left < right && !isValid(chars[right])) {
-                right--;
-            }
-            if (left < right) {
-                if (equal(chars[left], chars[right])) {
-                    left++;
-                    right--;
-                } else {
-                    return false;
-                }
-            }
+            temp = next;
         }
-        return true;
+        //如果该节点是一个尾节点,且之前的val不等于现在的val,则再次遍历以更新count
+        if (temp.isEnd && temp.endVal != val) {
+            int change = temp.endVal;
+            temp = root;
+            for (int i = 0; i < key.length(); i++) {
+                char c = key.charAt(i);
+                TreeNode next = temp.children[c - 'a'];
+                next.count -= change;
+                temp = next;
+            }
+        } else {
+            temp.isEnd = true;
+            temp.endVal = val;
+        }
     }
 
-    //验证字符是否是字母或者数字
-    public boolean isValid(char c) {
-        return (c >= '0' && c <= '9') || (c >='a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+
+
+
+
+    public int sum(String prefix) {
+        TreeNode temp = root;
+        for (int i = 0; i < prefix.length(); i++) {
+            char c = prefix.charAt(i);
+            TreeNode next = temp.children[c - 'a'];
+            if (next == null) {
+                return 0;
+            }
+            temp = next;
+        }
+        return temp.count;
     }
 
-    //判断a和b是否满足回文
-    public boolean equal(char a, char b) {
-        return a == b || a == b - ('A' - 'a') || a == b - ('a' - 'A');
+    private class TreeNode {
+        //记录目前key的值的总和
+        int count;
+        TreeNode[] children;
+        boolean isEnd;
+        int endVal;
+
+        TreeNode(int count) {
+            this.count = count;
+            children = new TreeNode[26];
+        }
     }
 }

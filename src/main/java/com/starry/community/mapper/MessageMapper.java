@@ -14,6 +14,30 @@ import java.util.List;
 public interface MessageMapper {
 
     /**
+     * 查询某个user的某个topic的最新的一条通知
+     * @param userId user的id
+     * @param topic 要查询的topic
+     * @return 如果不存在该topic的通知，则返回null
+     */
+    Message selectLatestNotificationByUserIdAndTopic(int userId,String topic);
+
+    /**
+     * 查询某个user的某个topic的所有通知的数量
+     * @param userId user的id
+     * @param topic 要查询的topic
+     * @return
+     */
+    int selectNotificationsCountByUserIdAndTopic(int userId, String topic);
+
+    /**
+     * 查询某个user的某个topic的所有未读通知的数量,
+     * @param userId user的id
+     * @param topic 要查询的topic，如果topic为null，则查询该用户所有主题的未读消息总数
+     * @return
+     */
+    int selectUnreadNotificationsCountByUserIdAndTopic(int userId, String topic);
+
+    /**
      * 查询当前用户的会话列表，每个会话只显示一条最新的message(用于在界面上显示)
      * 该方法支持分页
      */

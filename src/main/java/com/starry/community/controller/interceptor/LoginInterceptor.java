@@ -50,7 +50,15 @@ public class LoginInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    //该方法会在handler执行完，render前执行，因此在这里将user对象取出放到model中，方便渲染
+    /**
+     * 该方法会在handler执行完，render前执行，因此在这里将user对象取出放到model中，方便渲染。
+     * 并且将已登录用户、未读私信和未读通知数都存入modelAndView中。
+     * @param request
+     * @param response
+     * @param handler
+     * @param modelAndView
+     * @throws Exception
+     */
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         User user = hostHolder.getUser();
@@ -58,6 +66,8 @@ public class LoginInterceptor implements HandlerInterceptor {
             modelAndView.addObject("loginUser", user);
             int unreadMessagesCount = messageService.findUnreadMessagesCount(user.getId(), null);
             modelAndView.addObject("unread",unreadMessagesCount);
+            int unreadNotification = messageService.findUnreadNotificationsCountByUserIdAndTopic(user.getId(),null);
+            modelAndView.addObject("unreadNotification",unreadNotification);
         }
     }
 
