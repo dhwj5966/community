@@ -1,5 +1,9 @@
 package com.starry.community.configuration;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +31,9 @@ public class Redis_conf {
         template.setConnectionFactory(factory);
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
         Jackson2JsonRedisSerializer redisSerializer = new Jackson2JsonRedisSerializer(Object.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        redisSerializer.setObjectMapper(objectMapper);
         //设置key的序列化方式
         template.setKeySerializer(stringRedisSerializer);
         //设置value的序列化方式
@@ -37,5 +44,6 @@ public class Redis_conf {
         template.setHashValueSerializer(redisSerializer);
         template.afterPropertiesSet();
         return template;
+
     }
 }

@@ -1,6 +1,5 @@
 package com.starry.community.service;
 
-import com.starry.community.bean.LoginTicket;
 import com.starry.community.bean.User;
 
 import java.util.Map;
@@ -27,7 +26,7 @@ public interface UserService {
      */
     int updateHeaderUrl(int userId, String headerUrl);
 
-    LoginTicket findLoginTicketByTicket(String ticket);
+
 
     /**
      * 根据传入的凭证，将登录状态改为未登录,即status改为0
@@ -38,18 +37,28 @@ public interface UserService {
 
     /**
      * 根据用户名、密码、过期时间，验证是否登录成功
-     * 如果登录成功，将凭证存入login_ticket表,并将ticket封装到map中返回
+     * 如果登录成功，生成key-> login:UUID -> user
+     * 并将key中的UUID，map.put("ticket",UUID)到返回值中
      * 如果登录失败，将登录失败的原因封装到map中返回
      */
     Map<String, Object> login(String username, String password, Long expiredSeconds);
 
     /**
-     * 根据id查询用户
-     *
+     * 根据id查询用户,先从缓存中查，如果缓存命中则直接返回。
+     * 如果缓存中没有数据，则查Mysql数据库得到数据，并存到缓存中。
+     * 如果User为null，也会存到Redis中，在Redis中的value会是""
      * @param id
      * @return
      */
     User findUserById(int id);
+
+    /**
+     * 根据凭证去查询已登录用户，如果存在已登录用户，则返回该用户对象。
+     * 如果不存在该已登录用户，则返回null
+     * @param ticket
+     * @return
+     */
+    User findLoginUserByTicket(String ticket);
 
     /**
      * 根据传入的User对象，验证信息并完成注册，如果失败则返回带有失败信息的Map，

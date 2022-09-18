@@ -50,4 +50,12 @@ public interface CommunityConstant {
      * 实体类型-帖子
      */
     int ENTITY_TYPE_DISCUSSPOST = 4;
+
+    String TOPIC_COMMENT = "comment";
+
+    String TOPIC_LIKE = "like";
+
+    String TOPIC_FOLLOW = "follow";
+
+    int SYSTEM_USER_ID = 1;
 }

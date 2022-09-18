@@ -1,14 +1,14 @@
 package com.starry.community.controller.interceptor;
 
-import com.starry.community.bean.LoginTicket;
-
 
 import com.starry.community.bean.User;
 import com.starry.community.service.MessageService;
 import com.starry.community.service.UserService;
 import com.starry.community.util.CookieUtil;
 import com.starry.community.util.HostHolder;
+import com.starry.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,6 +32,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     private HostHolder hostHolder;
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -39,11 +41,9 @@ public class LoginInterceptor implements HandlerInterceptor {
         Cookie cookie = CookieUtil.getCookieByName(request, "ticket");
         if (cookie != null) {
             String ticket = cookie.getValue();
-            LoginTicket lt = userService.findLoginTicketByTicket(ticket);
+            User user = userService.findLoginUserByTicket(ticket);
             //验证凭证有效，不为空，Status==0，未过期
-            if (lt != null && lt.getStatus() == 0 && lt.getExpired().after(new Date())) {
-                User user = userService.findUserById(lt.getUserId());
-                //注意！这里不要直接存到request对象里，而是用ThreadLocal
+            if (user != null) {
                 hostHolder.setUser(user);
             }
         }

@@ -1,13 +1,12 @@
 package com.starry.community.service.impl;
 
-import com.starry.community.bean.LoginTicket;
 import com.starry.community.bean.User;
-import com.starry.community.mapper.LoginTicketMapper;
 import com.starry.community.mapper.UserMapper;
 import com.starry.community.service.UserService;
 import com.starry.community.util.CommunityConstant;
 import com.starry.community.util.CommunityUtil;
 import com.starry.community.util.EmailSender;
+import com.starry.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Starry
@@ -43,9 +43,32 @@ public class UserServiceImpl implements UserService, CommunityConstant {
     private TemplateEngine templateEngine;
 
     @Autowired
-    private LoginTicketMapper loginTicketMapper;
-    @Autowired
     private RedisTemplate redisTemplate;
+
+    /**
+     * 尝试从缓存中读取User数据，如果不存在则返回null
+     */
+    private User getCache(int userId) {
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        return (User) redisTemplate.opsForValue().get(userKey);
+    }
+
+    /**
+     * 从Mysql数据库中，根据userId查到user对象，并存入Redis
+     */
+    private User initCache(int userId) {
+        User user = userMapper.selectById(userId);
+        redisTemplate.opsForValue().set(RedisKeyUtil.getUserKey(userId),user,3600, TimeUnit.SECONDS);
+        return user;
+    }
+    /**
+     * 清除缓存数据
+     */
+    private void clearCache(int userId) {
+        redisTemplate.delete(RedisKeyUtil.getUserKey(userId));
+    }
+
+
 
 
 
@@ -62,16 +85,20 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         if (StringUtils.isBlank(headerUrl)) {
             throw new RuntimeException("头像Url不能为空");
         }
-        return userMapper.updateHeaderById(userId, headerUrl);
+        int i = userMapper.updateHeaderById(userId, headerUrl);
+        //如果真的修改了数据库中的数据，则清理缓存
+        if (i != 0) {
+            clearCache(userId);
+        }
+        return i;
     }
 
-    public LoginTicket findLoginTicketByTicket(String ticket) {
-        return loginTicketMapper.selectByTicket(ticket);
-    }
+
 
     @Override
     public void logOut(String ticket) {
-        loginTicketMapper.updateStatus(ticket, 1);
+        String loginUserKey = RedisKeyUtil.getLoginUserKey(ticket);
+        redisTemplate.expire(loginUserKey, -1, TimeUnit.SECONDS);
     }
 
     public Map<String, Object> login(String username, String password, Long expiredSeconds) {
@@ -100,20 +127,30 @@ public class UserServiceImpl implements UserService, CommunityConstant {
             map.put("passwordMsg", "密码错误!");
             return map;
         }
-        //生成凭证
-        LoginTicket loginTicket = new LoginTicket();
-        loginTicket.setUserId(user.getId());
-        loginTicket.setStatus(0);
-        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
-        loginTicket.setTicket(CommunityUtil.generateUUID());
-        loginTicketMapper.insertLoginTicket(loginTicket);
-        map.put("ticket", loginTicket.getTicket());
+        //生成key,存入redis,把tick封装到map中返回给表现层
+        String ticket = CommunityUtil.generateUUID();
+        String key = RedisKeyUtil.getLoginUserKey(ticket);
+        redisTemplate.opsForValue().set(key,user,expiredSeconds, TimeUnit.SECONDS);
+        map.put("ticket", ticket);
         return map;
     }
 
     @Override
     public User findUserById(int id) {
-        return userMapper.selectById(id);
+        //采用缓存策略
+        //1.从缓存中查询
+        User cache = getCache(id);
+        if (cache != null) {
+            return cache;
+        }
+        //2.如果没查到，从数据库中查,并更新缓存
+        return initCache(id);
+    }
+
+    @Override
+    public User findLoginUserByTicket(String ticket) {
+        String loginUserKey = RedisKeyUtil.getLoginUserKey(ticket);
+        return (User) redisTemplate.opsForValue().get(loginUserKey);
     }
 
     @Override
@@ -179,6 +216,7 @@ public class UserServiceImpl implements UserService, CommunityConstant {
             return ACTIVATION_REPEAT;
         } else if (user.getActivationCode().equals(activationCode)) {
             userMapper.updateStatusById(id, 1);
+            clearCache(id);
             return ACTIVATION_SUCCESS;
         } else {
             return ACTIVATION_FALIURE;
