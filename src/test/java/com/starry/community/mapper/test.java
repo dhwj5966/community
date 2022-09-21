@@ -1,7 +1,9 @@
 package com.starry.community.mapper;
 
+import com.starry.community.bean.DiscussPost;
 import com.starry.community.bean.Message;
 import com.starry.community.bean.User;
+import com.starry.community.mapper.elasticsearch.DiscussPostRepository;
 import com.starry.community.service.LikeService;
 import com.starry.community.util.RedisKeyUtil;
 import org.junit.Test;
@@ -9,13 +11,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,10 +35,46 @@ public class test {
     @Autowired
     private MessageMapper messageMapper;
 
+    @Autowired
+    private DiscussPostRepository discussPostRepository;
+
+    @Autowired
+    private DiscussPostMapper discussPostMapper;
+
+    @Test
+    public void query1() {
+        PriorityQueue heap = new PriorityQueue();
+
+    }
+
+
+    @Test
+    public void insertAllPost() {
+        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPost();
+        discussPostRepository.saveAll(discussPosts);
+    }
+
+    @Test
+    public void deleteAll() {
+        discussPostRepository.deleteAll();
+    }
+
     @Test
     public void test1() {
-        Message message = messageMapper.selectLatestNotificationByUserIdAndTopic(154, "comment");
-        System.out.println(message);
+        System.out.println(discussPostMapper.selectDiscussPostRows(0));
+        System.out.println(discussPostRepository.count());
+
+//        Iterable<DiscussPost> all = discussPostRepository.findAll();
+//        Iterator<DiscussPost> iterator = all.iterator();
+//        while (iterator.hasNext()) {
+//            DiscussPost next = iterator.next();
+//            System.out.println(next);
+//        }
+
+
+//        DiscussPost discussPost = new DiscussPost();
+//        discussPost.setId(3);
+//        discussPostRepository.save(discussPost);
     }
 
     @Test
@@ -56,6 +94,39 @@ public class test {
         System.out.println(map.get("aa"));
     }
 
+}
+
+
+
+class Solution {
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        int dp = solution.findTargetSumWays(new int[]{1,1,1,1,1},3);
+        System.out.println(dp);
+    }
+    Map[] memory;
+    int t ;
+    public int findTargetSumWays(int[] nums, int target) {
+        //回溯 + 剪枝
+        memory = new Map[nums.length];
+        Arrays.fill(memory, new HashMap<Integer,Integer>());
+        this.t = target;
+        return dp(0, 0, nums);
+    }
+
+    //index代表当前看的索引位置,target是需要达到的目标值
+    public int dp(int index, int target, int[] nums) {
+        if (index >= nums.length) {
+            return target == t ? 1 : 0;
+        }
+        if (memory[index].containsKey(target)) {
+            return (int)memory[index].get(target);
+        }
+        int i1 = dp(index + 1, target + nums[index], nums);
+        int i2 = dp(index + 1, target - nums[index], nums);
+        memory[index].put(target, i1 + i2);
+        return i1 + i2;
+    }
 }
 
 class MapSum {

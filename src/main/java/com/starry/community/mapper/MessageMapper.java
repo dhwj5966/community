@@ -14,6 +14,16 @@ import java.util.List;
 public interface MessageMapper {
 
     /**
+     * 查询指定user的指定topic的通知，支持分页
+     * @param userId
+     * @param topic
+     * @param offset
+     * @param limit
+     * @return
+     */
+    List<Message> selectNotifications(int userId,String topic,int offset, int limit);
+
+    /**
      * 查询某个user的某个topic的最新的一条通知
      * @param userId user的id
      * @param topic 要查询的topic

@@ -23,6 +23,11 @@ public class MessageServiceImpl implements MessageService {
     private SensitiveWordsFilter sensitiveWordsFilter;
 
     @Override
+    public List<Message> findNotifications(int userId, String topic, int offset, int limit) {
+        return messageMapper.selectNotifications(userId, topic, offset, limit);
+    }
+
+    @Override
     public Message findLatestNotificationByUserIdAndTopic(int userId, String topic) {
         return messageMapper.selectLatestNotificationByUserIdAndTopic(userId, topic);
     }

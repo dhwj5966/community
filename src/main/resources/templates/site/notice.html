@@ -34,7 +34,7 @@
 				
 				<!-- 通知列表 -->
 				<ul class="list-unstyled">
-<!--					评论的通知信息-->
+					<!--评论的通知信息-->
 					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative" th:if="${commentNotification.size != 0}">
 						<span class="badge badge-danger"
 						  th:text="${commentNotification.unread != 0 ? commentNotification.unread : ''}"
@@ -48,7 +48,7 @@
 								>2019-04-28 14:13:25</span>
 							</h6>
 							<div>
-								<a href="notice-detail.html">
+								<a th:href="@{/message/notification/detail/comment}">
 									用户 <i th:text="${commentNotification.user.username}">nowcoder</i> 评论了你的
 									<b th:text="${commentNotification.entityType == 1 ? '帖子' : '回复'}">帖子</b> ...
 								</a>
@@ -60,7 +60,7 @@
 							</div>
 						</div>
 					</li>
-<!--					赞的通知信息-->
+					<!--赞的通知信息-->
 					<li class="media pb-3 pt-3 mb-3 border-bottom position-relative" th:if="${likeNotification.size != 0}">
 						<span class="badge badge-danger"  th:text="${likeNotification.unread != 0 ? likeNotification.unread : ''}"
 						>3</span>
@@ -73,7 +73,8 @@
 								>2019-04-28 14:13:25</span>
 							</h6>
 							<div>
-								<a href="notice-detail.html">用户 <i th:text="${likeNotification.user.username}">
+								<a th:href="@{/message/notification/detail/like}">
+									用户 <i th:text="${likeNotification.user.username}">
 									nowcoder</i> 点赞了你的
 									<b th:text="${likeNotification.entityType == 1 ? '帖子' : '回复'}">帖子</b> ...</a>
 								<ul class="d-inline font-size-12 float-right">
@@ -99,7 +100,7 @@
 								>2019-04-28 14:13:25</span>
 							</h6>
 							<div>
-								<a href="notice-detail.html">用户
+								<a th:href="@{/message/notification/detail/follow}">用户
 									<i th:text="${followNotification.user.username}">nowcoder</i> 关注了你 ...</a>
 								<ul class="d-inline font-size-12 float-right">
 									<li class="d-inline ml-2"><span class="text-primary">共

@@ -12,6 +12,17 @@ import java.util.List;
 public interface MessageService {
 
     /**
+     * 查找指定用户的指定主题的所有通知
+     * 必须分页
+     * @param userId
+     * @param topic
+     * @param offset
+     * @param limit
+     * @return
+     */
+    List<Message> findNotifications(int userId,String topic, int offset, int limit);
+
+    /**
      * 查询某个user的某个topic的最新的一条通知
      * @param userId user的id
      * @param topic 要查询的topic
@@ -30,7 +41,7 @@ public interface MessageService {
     /**
      * 查询某个user的某个topic的所有未读通知的数量,
      * @param userId user的id
-     * @param topic 要查询的topic，如果topic为null，则查询该用户所有主题的未读消息总数
+     * @param topic 要查询的topic，如果topic为null，则查询该用户所有主题的未读通知总数
      * @return
      */
     int findUnreadNotificationsCountByUserIdAndTopic(int userId, String topic);

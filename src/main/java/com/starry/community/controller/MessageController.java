@@ -38,6 +38,54 @@ public class MessageController implements CommunityConstant {
     private UserService userService;
 
     /**
+     * 获取通知的详情页，前端需要传入分页参数以及要查看的通知的主题
+     * @param topic 需要跳转的通知的主题类型
+     * @param model
+     * @param page
+     * @return
+     */
+    @RequestMapping(value = "/notification/detail/{topic}", method = RequestMethod.GET)
+    @CheckLogin
+    public String getNotificationDetail(@PathVariable("topic") String topic,Model model,Page page) {
+        if (StringUtils.isBlank(topic)) {
+            throw new RuntimeException();
+        }
+        int userId = hostHolder.getUser().getId();
+        //设置page
+        page.setLimit(5);
+        page.setPath("/message/notification/detail/" + topic);
+        page.setRows(messageService.findNotificationsCountByUserIdAndTopic(userId,topic));
+        //
+        List<Message> notifications =
+                messageService.findNotifications(userId, topic, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> noticeVO = new ArrayList<>();
+        List<Integer> ids = new ArrayList<>();
+        if (notifications != null) {
+            for (Message notification : notifications) {
+                ids.add(notification.getId());
+                Map<String, Object> map = new HashMap<>();
+                map.put("message", notification);
+                //解析message中的content，提取出引起事件的用户等信息，并存入map以供显示。
+                String content = notification.getContent();
+                //将content，反转义，然后解析为HashMap,以便提取数据
+                Map data = JSONObject.parseObject(HtmlUtils.htmlUnescape(content), HashMap.class);
+                //根据data中的userId，find到user对象(引起通知事件的那个user)
+                map.put("user", userService.findUserById((Integer) data.get("userId")));
+                map.put("entityType",data.get("entityType"));
+                map.put("entityId",data.get("entityId"));
+                map.put("postId", data.get("postId"));
+                noticeVO.add(map);
+            }
+        }
+        //更新message的status为1(已读)
+        messageService.readMessagesStatus(ids);
+
+        model.addAttribute("notifications", noticeVO);
+        return "/site/notice-detail";
+    }
+
+
+    /**
      * 用户查看自己的系统通知列表，该方法应该查询所有topic的最新通知，并封装到model里
      * @param model
      * @return

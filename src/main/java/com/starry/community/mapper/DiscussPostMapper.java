@@ -15,6 +15,12 @@ import java.util.List;
 public interface DiscussPostMapper {
 
     /**
+     * 查询所有的帖子
+     * @return
+     */
+    List<DiscussPost> selectDiscussPost();
+
+    /**
      * 插入新post到数据库的discusspost表
      * @param discussPost
      * @return

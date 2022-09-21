@@ -8,6 +8,18 @@
         id,from_id,to_id,conversation_id,content,status,create_time
     </sql>
 
+    <select id="selectNotifications" resultType="Message">
+        select <include refid="selectFields"></include>
+        from message
+        where from_id = 1
+        and status != 2
+        and to_id = #{userId}
+        and conversation_id = #{topic}
+        order by id desc
+        limit #{offset},#{limit}
+    </select>
+
+
     <select id="selectConversations" resultType="Message">
         select <include refid="selectFields"></include>
         from message
