@@ -1,7 +1,9 @@
 package com.starry.community.service;
 
 import com.starry.community.bean.User;
+import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -10,6 +12,13 @@ import java.util.Map;
  * @Describe
  */
 public interface UserService {
+
+    /**
+     * 返回权限
+     * @return
+     */
+    Collection<? extends GrantedAuthority> getAuthority(int type);
+
 
 
     /**

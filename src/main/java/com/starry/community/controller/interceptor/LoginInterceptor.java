@@ -9,6 +9,11 @@ import com.starry.community.util.HostHolder;
 import com.starry.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,8 +37,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     private HostHolder hostHolder;
     @Autowired
     private MessageService messageService;
-    @Autowired
-    private RedisTemplate redisTemplate;
+
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -45,8 +49,15 @@ public class LoginInterceptor implements HandlerInterceptor {
             //验证凭证有效，不为空，Status==0，未过期
             if (user != null) {
                 hostHolder.setUser(user);
+                /*
+                    构建用户认证的结果，并存入SecurityContextHolder,完成SpringSecurity的授权。
+                 */
+                Authentication authentication = new UsernamePasswordAuthenticationToken
+                        (user, user.getPassword(),userService.getAuthority(user.getType()));
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
+
         return true;
     }
 
@@ -74,5 +85,6 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         hostHolder.clear();//help GC
+        SecurityContextHolder.clearContext();//help GC
     }
 }

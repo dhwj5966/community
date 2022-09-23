@@ -64,7 +64,7 @@ public class DiscussPostController implements CommunityConstant {
         for (Comment comment : comments) {
             comment.setLike(curUser == null ? 0 :
                     likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT,comment.getId()));
-            comment.setLikeStatus(
+            comment.setLikeStatus(curUser == null ? 0 :
                     likeService.isUserLikeEntity(ENTITY_TYPE_COMMENT,comment.getId(), curUser.getId()));
             if (comment.getComments() != null) {
                 for (Comment reply : comment.getComments()) {

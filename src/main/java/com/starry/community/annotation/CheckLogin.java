@@ -11,6 +11,7 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD})//只能作用在方法上
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Deprecated
 public @interface CheckLogin {
 
 }

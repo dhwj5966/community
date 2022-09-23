@@ -41,7 +41,6 @@ public class CommentController implements CommunityConstant {
      * @param comment 包括entityType，entityId，content，可能有targetUser（如果是对评论的回复）
      */
     @RequestMapping(value = "/add/{discussPostId}",method = RequestMethod.POST)
-    @CheckLogin
     public String addComment(Comment comment,@PathVariable("discussPostId") int discussPostId) {
         User user = hostHolder.getUser();
         comment.setUserId(user.getId());

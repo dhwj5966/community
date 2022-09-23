@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
  * @Describe 用于检查用户是否登录，对于那些需要登录的handler，需要登录才能通过拦截器，如果没有登录则跳转到登录页面
  */
 @Component
+@Deprecated
 public class CheckLoginInterceptor implements HandlerInterceptor {
     @Autowired
     private HostHolder hostHolder;
