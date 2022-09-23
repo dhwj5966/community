@@ -53,8 +53,8 @@
 							</li>
 						</ul>
 						<!-- 搜索 -->
-						<form class="form-inline my-2 my-lg-0" action="site/search.html">
-							<input class="form-control mr-sm-2" type="search" aria-label="Search" />
+						<form class="form-inline my-2 my-lg-0" th:action="@{/search}" method="get" th:value="${keyword}">
+							<input class="form-control mr-sm-2" name="keyword" type="search" aria-label="Search" />
 							<button class="btn btn-outline-light my-2 my-sm-0" type="submit">搜索</button>
 						</form>
 					</div>
@@ -136,7 +136,8 @@
 								<span class="badge badge-secondary bg-danger" th:if="${map.post.status==1}">精华</span>
 							</h6>
 							<div class="text-muted font-size-14">
-								<a class="mr-3 font-size-14" th:text="${map.user.username}" th:href="@{|/user/profile/${map.user.id}|}"></a> 发布于 <b th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}"> </b>
+								<a class="mr-3 font-size-14" th:text="${map.user.username}" th:href="@{|/user/profile/${map.user.id}|}"></a> 发布于
+								<b th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}"> </b>
 								<ul class="d-inline float-right">
 									<li class="d-inline ml-2 font-size-14">赞 <b th:text="${map.like}"></b></li>
 									<li class="d-inline ml-2">|</li>

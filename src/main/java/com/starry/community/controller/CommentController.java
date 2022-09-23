@@ -37,7 +37,7 @@ public class CommentController implements CommunityConstant {
     private DiscussPostService discussPostService;
 
     /**
-     *
+     * 用户发布评论
      * @param comment 包括entityType，entityId，content，可能有targetUser（如果是对评论的回复）
      */
     @RequestMapping(value = "/add/{discussPostId}",method = RequestMethod.POST)
@@ -72,6 +72,11 @@ public class CommentController implements CommunityConstant {
         event.setEntityUserId(entityUserId);
         eventProducer.fireEvent(event);
 
+        //当回复是回复给帖子的时候，触发帖子的修改事件，以便于消费者更新ES
+        if (comment.getEntityType() == ENTITY_TYPE_POST) {
+            Event event1 = new Event().setTopic(TOPIC_PUBLISH).setEntityId(discussPostId);
+            eventProducer.fireEvent(event1);
+        }
         return "redirect:/discussPost/showPostDetail/" + discussPostId;
     }
 }

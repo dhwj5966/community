@@ -1,9 +1,12 @@
 package com.starry.community.event;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.starry.community.bean.DiscussPost;
 import com.starry.community.bean.Event;
 import com.starry.community.bean.Message;
 import com.starry.community.mapper.MessageMapper;
+import com.starry.community.service.DiscussPostService;
+import com.starry.community.service.ElasticSearchService;
 import com.starry.community.service.MessageService;
 import com.starry.community.util.CommunityConstant;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,8 +29,40 @@ import java.util.Map;
 public class EventConsumer implements CommunityConstant {
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private ElasticSearchService elasticSearchService;
+    @Autowired
+    private DiscussPostService discussPostService;
 
     private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
+
+    /**
+     * Kafka消费者，消费topic为 publish
+     * 监听publish 事件，根据事件，修改ElasticSearch中"discusspost"index的数据
+     * @param record
+     */
+    @KafkaListener(topics = {TOPIC_PUBLISH})
+    public void handlePublish(ConsumerRecord record) {
+        if (record == null || record.value() == null) {
+            logger.error("消息的内容为空");
+            return;
+        }
+        String value = record.value().toString();
+        Event event = JSONObject.parseObject(value, Event.class);
+        if (event == null) {
+            logger.error("消息格式错误");
+            return;
+        }
+        /*
+         * 想想这里面的逻辑，是根据event里的数据再去查数据库，再存到ES中，为什么要这样？
+         * 为什么不是事件里直接包含discussPost对象，然后不用IO、直接存到ES中呢？
+         */
+        DiscussPost discussPost = discussPostService.findDiscussPostById(event.getEntityId());
+        elasticSearchService.saveDiscussPost(discussPost);
+    }
+
+
+
 
     /**
      * Kafka的消费者，消费topic为 comment,follow,like

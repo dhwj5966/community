@@ -1,13 +1,8 @@
 package com.starry.community.controller;
 
-import com.starry.community.bean.Comment;
-import com.starry.community.bean.DiscussPost;
-import com.starry.community.bean.Page;
-import com.starry.community.bean.User;
-import com.starry.community.service.CommentService;
-import com.starry.community.service.DiscussPostService;
-import com.starry.community.service.LikeService;
-import com.starry.community.service.UserService;
+import com.starry.community.bean.*;
+import com.starry.community.event.EventProducer;
+import com.starry.community.service.*;
 import com.starry.community.util.CommunityConstant;
 import com.starry.community.util.CommunityUtil;
 import com.starry.community.util.HostHolder;
@@ -38,6 +33,8 @@ public class DiscussPostController implements CommunityConstant {
     private CommentService commentService;
     @Autowired
     private LikeService likeService;
+    @Autowired
+    private EventProducer eventProducer;
 
     /**
      * 跳转到帖子详情页
@@ -90,9 +87,9 @@ public class DiscussPostController implements CommunityConstant {
 
 
     /**
-     * 发布post
-     * 如果用户未登录，发帖失败
-     * 如果用户登录成功
+     * 发布post，
+     * 如果用户未登录，发帖失败，
+     *
      */
     @PostMapping("/add")
     @ResponseBody
@@ -115,6 +112,9 @@ public class DiscussPostController implements CommunityConstant {
         discussPost.setContent(content);
         discussPost.setCreateTime(new Date());
         discussPostService.addDiscussPosts(discussPost);
+        //将discussPost也存到ES中(异步)
+        Event event = new Event().setTopic(TOPIC_PUBLISH).setEntityId(discussPost.getId());
+        eventProducer.fireEvent(event);
 
         //返回结果
         return CommunityUtil.getJsonString(0,"发布成功！");
