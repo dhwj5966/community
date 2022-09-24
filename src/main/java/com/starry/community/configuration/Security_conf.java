@@ -50,15 +50,26 @@ public class Security_conf extends WebSecurityConfigurerAdapter implements Commu
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //授权逻辑
-        http.authorizeRequests()
-                .antMatchers(
+        //哪些路径需要什么样的授权？
+        http.authorizeRequests().antMatchers(
                         //那些需要有登录权限的路径
-                        //拥有这三类权限的请求，才可以访问以上路径
-                        "/comment/add/*"
-                ).hasAnyAuthority(AUTHORITY_USER,AUTHORITY_ADMIN,AUTHORITY_MODERATOR)
+                        //拥有这三类权限的请求，都可以访问以下路径
+                        "/user/setting",//设置
+                        "/user/setting/upload",//上传文件
+                        "/discussPost/add",
+                        "/comment/add/**",//发帖
+                        "/message/**",
+                        "/like",
+                        "/follow",
+                        "/unfollow"
+                ).hasAnyAuthority(
+                        AUTHORITY_USER,
+                        AUTHORITY_ADMIN,
+                        AUTHORITY_MODERATOR)
                 //其他所有的请求，都可以被任何权限的请求访问。
-                .anyRequest().permitAll();
+                .anyRequest().permitAll()
+                .and().csrf().disable();
+
 
         //当请求越权时的处理逻辑
         http.exceptionHandling()

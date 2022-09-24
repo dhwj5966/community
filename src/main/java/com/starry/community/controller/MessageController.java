@@ -1,7 +1,6 @@
 package com.starry.community.controller;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.starry.community.annotation.CheckLogin;
 import com.starry.community.bean.Message;
 import com.starry.community.bean.Page;
 import com.starry.community.bean.User;
@@ -45,7 +44,6 @@ public class MessageController implements CommunityConstant {
      * @return
      */
     @RequestMapping(value = "/notification/detail/{topic}", method = RequestMethod.GET)
-    @CheckLogin
     public String getNotificationDetail(@PathVariable("topic") String topic,Model model,Page page) {
         if (StringUtils.isBlank(topic)) {
             throw new RuntimeException();
@@ -91,7 +89,6 @@ public class MessageController implements CommunityConstant {
      * @return
      */
     @RequestMapping(value = "/notification/list",method = RequestMethod.GET)
-    @CheckLogin
     public String getNotificationPage(Model model) {
         String[] topics = {TOPIC_COMMENT, TOPIC_LIKE, TOPIC_FOLLOW};
         for (String topic : topics) {
@@ -142,7 +139,6 @@ public class MessageController implements CommunityConstant {
 
     @RequestMapping(value = "/send", method = RequestMethod.POST)
     @ResponseBody
-    @CheckLogin
     public String sendMessage(String toName, String content) {
         User targetUser = userService.findUserByUsername(toName);
         if (targetUser == null) {
@@ -176,7 +172,6 @@ public class MessageController implements CommunityConstant {
      * @return
      */
     @RequestMapping("/getPage")
-    @CheckLogin
     public String toMessagePage(Page page, Model model) {
         page.setPath("/message/getPage");
         page.setLimit(5);
@@ -205,7 +200,6 @@ public class MessageController implements CommunityConstant {
 
 
     @RequestMapping("/getDetailPage/{conversationId}/{targetUserId}")
-    @CheckLogin
     public String getMessageDetailPage
             (@PathVariable("conversationId") String conversationId, Model model,
              Page page, @PathVariable("targetUserId") int targetUserId) {

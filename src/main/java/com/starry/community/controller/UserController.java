@@ -57,7 +57,7 @@ public class UserController implements CommunityConstant {
     @Autowired
     private FollowService followService;
 
-    @CheckLogin
+
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
     public String getSettingPage() {
         return "/site/setting";
@@ -68,7 +68,6 @@ public class UserController implements CommunityConstant {
      *
      * @return 如果修改成功，则清空登录状态并跳转到登录页面，如果修改失败，跳回到setting页面
      */
-    @CheckLogin
     @RequestMapping(value = "/setting/updatePassword", method = RequestMethod.POST)
     public String updatePassword(String curPassword, String targetPassword,
                                  Model model, @CookieValue("ticket") String ticket) {
@@ -129,7 +128,6 @@ public class UserController implements CommunityConstant {
     /**
      * 接收用户上传头像的请求
      */
-    @CheckLogin
     @RequestMapping(value = "/setting/upload", method = RequestMethod.POST)
     public String uploadPhoto(MultipartFile multipartFile, Model model) {
         /*

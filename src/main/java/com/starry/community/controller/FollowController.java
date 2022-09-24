@@ -1,6 +1,6 @@
 package com.starry.community.controller;
 
-import com.starry.community.annotation.CheckLogin;
+
 import com.starry.community.bean.Event;
 import com.starry.community.bean.Page;
 import com.starry.community.bean.User;
@@ -44,7 +44,6 @@ public class FollowController implements CommunityConstant {
      * @return
      */
     @RequestMapping(value = "/follow",method = RequestMethod.POST)
-    @CheckLogin
     @ResponseBody
     public String follow(int entityType, int entityId) {
         User user = hostHolder.getUser();
@@ -69,7 +68,6 @@ public class FollowController implements CommunityConstant {
      * @return
      */
     @RequestMapping(value = "/unfollow",method = RequestMethod.POST)
-    @CheckLogin
     @ResponseBody
     public String unfollow(int entityType, int entityId) {
         User user = hostHolder.getUser();
