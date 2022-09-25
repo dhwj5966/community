@@ -36,6 +36,22 @@ public class EventConsumer implements CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
 
+    @KafkaListener(topics = {TOPIC_DELETE})
+    public void handleDelete(ConsumerRecord record) {
+        if (record == null || record.value() == null) {
+            logger.error("消息的内容为空");
+            return;
+        }
+        String value = record.value().toString();
+        Event event = JSONObject.parseObject(value, Event.class);
+        if (event == null) {
+            logger.error("消息格式错误");
+            return;
+        }
+        //删除帖子
+        elasticSearchService.deleteDiscussPostById(event.getEntityId());
+    }
+
     /**
      * Kafka消费者，消费topic为 publish
      * 监听publish 事件，根据事件，修改ElasticSearch中"discusspost"index的数据
@@ -60,9 +76,6 @@ public class EventConsumer implements CommunityConstant {
         DiscussPost discussPost = discussPostService.findDiscussPostById(event.getEntityId());
         elasticSearchService.saveDiscussPost(discussPost);
     }
-
-
-
 
     /**
      * Kafka的消费者，消费topic为 comment,follow,like

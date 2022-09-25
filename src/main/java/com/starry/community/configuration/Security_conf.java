@@ -66,6 +66,12 @@ public class Security_conf extends WebSecurityConfigurerAdapter implements Commu
                         AUTHORITY_USER,
                         AUTHORITY_ADMIN,
                         AUTHORITY_MODERATOR)
+                //版主和管理员拥有加精和置顶的权限。
+                .antMatchers("/discussPost/top","/discussPost/wonderful").
+                hasAnyAuthority(AUTHORITY_MODERATOR,AUTHORITY_ADMIN)
+                //管理员有删除权限。
+                .antMatchers("/discussPost/delete")
+                .hasAnyAuthority(AUTHORITY_ADMIN)
                 //其他所有的请求，都可以被任何权限的请求访问。
                 .anyRequest().permitAll()
                 .and().csrf().disable();

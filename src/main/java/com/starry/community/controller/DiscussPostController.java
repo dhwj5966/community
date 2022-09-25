@@ -37,6 +37,64 @@ public class DiscussPostController implements CommunityConstant {
     private EventProducer eventProducer;
 
     /**
+     * 处理对帖子的置顶，处理异步请求，需要"admin"权限，由SpringSecurity控制。
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/top", method = RequestMethod.POST)
+    @ResponseBody
+    public String setTop(int id) {
+        //更新数据库
+        discussPostService.updateType(id,1);
+        //由于ES中也保存了帖子数据，应该需要异步的把更新提交到MQ
+        Event event = new Event()
+                .setEntityId(id)
+                .setEntityType(ENTITY_TYPE_POST)
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId());
+        eventProducer.fireEvent(event);
+        //返回
+        return CommunityUtil.getJsonString(0);
+    }
+
+    /**
+     * 加精帖子，处理异步请求，需要"admin"权限，由SpringSecurity控制。
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/wonderful", method = RequestMethod.POST)
+    @ResponseBody
+    public String setWonderful(int id) {
+        //更新数据库
+        discussPostService.updateStatus(id,1);
+        //由于ES中也保存了帖子数据，应该需要异步的把更新提交到MQ
+        Event event = new Event()
+                .setEntityId(id)
+                .setEntityType(ENTITY_TYPE_POST)
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId());
+        eventProducer.fireEvent(event);
+        //返回
+        return CommunityUtil.getJsonString(0);
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String setDelete(int id) {
+        //更新数据库
+        discussPostService.updateStatus(id,2);
+        //由于ES中也保存了帖子数据，应该从ES中删除帖子
+        Event event = new Event()
+                .setEntityId(id)
+                .setEntityType(ENTITY_TYPE_POST)
+                .setTopic(TOPIC_DELETE)
+                .setUserId(hostHolder.getUser().getId());
+        eventProducer.fireEvent(event);
+        //返回
+        return CommunityUtil.getJsonString(0);
+    }
+
+    /**
      * 跳转到帖子详情页
      * 根据帖子ID查到DiscussPost对象，并封装到Model里
      * 还要查到所有的评论信息

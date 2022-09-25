@@ -1,3 +1,9 @@
+$(function() {
+    $("#topBut").click(setTop);
+    $("#wonderfulBut").click(setWonderful);
+    $("#deleteBut").click(setDelete);
+});
+
 function like(btn,entityType,entityId,targetUserId,postId) {
     $.post(
         CONTEXT_PATH + "/like",
@@ -29,4 +35,54 @@ function like(btn,entityType,entityId,targetUserId,postId) {
             }
         }
     )
+};
+
+function setTop() {
+    $.post(
+        CONTEXT_PATH + "/discussPost/top",
+        {"id" : $("#postId").val()},
+        function(data) {
+            data = $.parseJSON(data);
+            if (data.code == 0) {
+                $("#topBut").attr("disabled", "disabled");
+            } else {
+                alert(data.msg);
+            }
+        }
+    );
 }
+
+function setWonderful() {
+    $.post(
+        CONTEXT_PATH + "/discussPost/wonderful",
+        {"id" : $("#postId").val()},
+        function(data) {
+            data = $.parseJSON(data);
+            if (data.code == 0) {
+                $("#wonderfulBut").attr("disabled", "disabled");
+            } else {
+                alert(data.msg);
+            }
+        }
+    );
+}
+
+function setDelete() {
+    $.post(
+        CONTEXT_PATH + "/discussPost/delete",
+        {"id" : $("#postId").val()},
+        function(data) {
+            data = $.parseJSON(data);
+            if (data.code == 0) {
+                location.href = CONTEXT_PATH + "/index";
+            } else {
+                alert(data.msg);
+            }
+        }
+    );
+}
+
+
+
+
+

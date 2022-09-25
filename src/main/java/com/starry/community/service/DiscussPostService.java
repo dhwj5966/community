@@ -11,6 +11,22 @@ import java.util.List;
  */
 public interface DiscussPostService {
 
+    /**
+     * 修改指定id的discusspost的type。
+     * @param id
+     * @param type
+     * @return
+     */
+    int updateType(int id, int type);
+
+    /**
+     * 修改指定id的discusspost的status
+     * @param id
+     * @param status
+     * @return
+     */
+    int updateStatus(int id, int status);
+
     DiscussPost findDiscussPostById(int id);
     /**
      * 根据userId查询DiscussPost，如果userId为0，则查询全部userId的DiscussPost，不包括status=2的DiscussPost

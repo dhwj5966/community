@@ -15,6 +15,7 @@ public interface ElasticSearchService {
 
     void saveDiscussPost(DiscussPost discussPost);
 
+
     void deleteDiscussPostById(int id);
 
     /**

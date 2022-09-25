@@ -25,6 +25,16 @@ public class DiscussPostServiceImpl implements DiscussPostService {
     private SensitiveWordsFilter sensitiveWordsFilter;
 
     @Override
+    public int updateType(int id, int type) {
+        return discussPostMapper.updateTypeById(id, type);
+    }
+
+    @Override
+    public int updateStatus(int id, int status) {
+        return discussPostMapper.updateStatusById(id, status);
+    }
+
+    @Override
     public DiscussPost findDiscussPostById(int id) {
         return discussPostMapper.selectDiscussPostById(id);
     }

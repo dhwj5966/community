@@ -14,6 +14,25 @@ import java.util.List;
 @Mapper
 public interface DiscussPostMapper {
 
+
+    /**
+     * 将指定帖子的status字段修改。
+     * @param id
+     * @param status
+     * @return 影响的帖子数量
+     */
+    int updateStatusById(int id, int status);
+
+
+    /**
+     * 将指定帖子的type字段修改。
+     * @param id
+     * @param type
+     * @return 影响帖子的数量
+     */
+    int updateTypeById(int id, int type);
+
+
     /**
      * 查询所有的帖子
      * @return
