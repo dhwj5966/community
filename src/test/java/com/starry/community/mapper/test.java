@@ -30,10 +30,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.core.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalField;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -66,12 +73,75 @@ public class test {
 
     @Test
     public void esst() {
-
+        LocalDate start = LocalDate.of(2022,9, 24);
+        LocalDate end = LocalDate.of(2022,9, 26);
+        Map<String, Long> map = new TreeMap<>();
+        LocalDate temp = LocalDate.of(start.getYear(), start.getMonth(), start.getDayOfMonth());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        DateTimeFormatter dateTimeFormatter2 = DateTimeFormatter.ofPattern("yyyy:MM:dd");
+        Long sum = 0l;
+        while (!temp.isAfter(end)) {
+            String key = RedisKeyUtil.getDAUKey(dateTimeFormatter.format(temp));
+            Long size = (Long) redisTemplate.execute(new RedisCallback() {
+                @Override
+                public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                    return connection.bitCount(key.getBytes());
+                }
+            });
+            map.put(dateTimeFormatter2.format(temp), size);
+            temp = temp.plusDays(1);
+            sum += size;
+        }
+        map.put("sum", sum);
+        System.out.println(map);
     }
 
     @Test
     public void query1() {
-        PriorityQueue heap = new PriorityQueue();
+        //解析日期
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy:MM:dd");
+        String format = dateTimeFormatter.format(now);
+        System.out.println(format);
+    }
+
+
+    //场景模拟，统计20万个重复数据的独立总数
+    @Test
+    public void HyperLogLog() {
+        String key = "hyper1";
+        for (int i = 0; i < 10_0000; i++) {
+            redisTemplate.opsForHyperLogLog().add(key, i);
+        }
+
+        for (int i = 0; i < 10_0000; i++) {
+            redisTemplate.opsForHyperLogLog().add(key, (int)(Math.random() * 10_0000));
+        }
+    }
+
+    @Test
+    public void BitmapTest() {
+        String key1 = "bit1";
+        String key2 = "bit2";
+
+        redisTemplate.opsForValue().setBit(key1, 0,true);
+        redisTemplate.opsForValue().setBit(key1, 1,true);
+        redisTemplate.opsForValue().setBit(key1, 2,true);
+
+        redisTemplate.opsForValue().setBit(key2, 2,true);
+        redisTemplate.opsForValue().setBit(key2, 3,true);
+        redisTemplate.opsForValue().setBit(key2, 4,true);
+
+        String key3 = "bitAnd";
+
+        Object execute = redisTemplate.execute(new RedisCallback() {
+            @Override
+            public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                connection.bitOp(RedisStringCommands.BitOperation.AND,
+                        key3.getBytes(), key1.getBytes(),key2.getBytes());
+                return null;
+            }
+        });
 
     }
 

@@ -8,6 +8,7 @@ import com.starry.community.util.CookieUtil;
 import com.starry.community.util.HostHolder;
 import com.starry.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,6 +31,7 @@ import java.util.Date;
  * 并在使用完后clear HostHolder
  */
 @Component
+@Order(value = Integer.MAX_VALUE - 1)
 public class LoginInterceptor implements HandlerInterceptor {
     @Autowired
     private UserService userService;
