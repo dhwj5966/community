@@ -3,6 +3,8 @@ package com.starry.community.controller;
 import com.starry.community.bean.User;
 import com.starry.community.util.CommunityUtil;
 import lombok.Data;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -53,6 +55,8 @@ public class demo {
         System.out.println(session.getAttribute("k1"));
         return "hi";
     }
+
+
 }
 
 

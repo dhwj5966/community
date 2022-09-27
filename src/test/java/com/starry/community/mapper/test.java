@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.starry.community.bean.DiscussPost;
 import com.starry.community.bean.Message;
 import com.starry.community.bean.User;
+import com.starry.community.controller.demo;
 import com.starry.community.mapper.elasticsearch.DiscussPostRepository;
 import com.starry.community.service.ElasticSearchService;
 import com.starry.community.service.LikeService;
@@ -22,6 +23,9 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessException;
@@ -70,7 +74,15 @@ public class test {
     private RestHighLevelClient restHighLevelClient;
     @Autowired
     private ElasticSearchService elasticSearchService;
+    @Autowired
+    private com.starry.community.controller.demo demo;
 
+    @Autowired
+    private Scheduler scheduler;
+    @Test
+    public void test1() throws InterruptedException, SchedulerException {
+        scheduler.deleteJob(new JobKey("alphaJob", "alphaJobGroup"));
+    }
     @Test
     public void esst() {
         LocalDate start = LocalDate.of(2022,9, 24);
@@ -157,10 +169,6 @@ public class test {
         discussPostRepository.deleteAll();
     }
 
-    @Test
-    public void test1() {
-
-    }
 
     @Test
     public void noHighLightSearch() throws IOException {
