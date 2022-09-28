@@ -8,10 +8,12 @@ import com.starry.community.service.LikeService;
 import com.starry.community.service.MessageService;
 import com.starry.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +31,6 @@ public class HomeController {
     private DiscussPostService discussPostService;
     @Autowired
     private UserService userService;
-//    @Autowired
-//    private MessageService messageService;
     @Autowired
     private LikeService likeService;
 
@@ -41,12 +41,13 @@ public class HomeController {
      * @return
      */
     @RequestMapping("/index")
-    public String getIndexPage(Model model, Page page) {
+    public String getIndexPage(Model model, Page page,
+                               @RequestParam(name = "orderMode", defaultValue = "0") int orderMode) {
         //
         page.setRows(discussPostService.findDiscussPostsPostRows(0));//查询总数据数量，并封装到page对象中
-        page.setPath("/index");
-
-        List<DiscussPost> list = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit());
+        page.setPath("/index?orderMode=" + orderMode);
+        List<DiscussPost> list =
+                discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit(), orderMode);
         List<Map<String,Object>> discussPosts = new ArrayList<>();
         if (list != null) {
             for (DiscussPost discussPost : list) {
@@ -59,6 +60,7 @@ public class HomeController {
         }
         model.addAttribute("discussPosts",discussPosts);
         model.addAttribute("page",page);
+        model.addAttribute("orderMode", orderMode);
         return "index";
     }
 

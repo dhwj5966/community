@@ -74,6 +74,9 @@ public class DiscussPostController implements CommunityConstant {
                 .setTopic(TOPIC_PUBLISH)
                 .setUserId(hostHolder.getUser().getId());
         eventProducer.fireEvent(event);
+
+        discussPostService.waitToUpdateScore(id);
+
         //返回
         return CommunityUtil.getJsonString(0);
     }
@@ -173,6 +176,9 @@ public class DiscussPostController implements CommunityConstant {
         //将discussPost也存到ES中(异步)
         Event event = new Event().setTopic(TOPIC_PUBLISH).setEntityId(discussPost.getId());
         eventProducer.fireEvent(event);
+
+        //新增帖子的score待更新
+        discussPostService.waitToUpdateScore(discussPost.getId());
 
         //返回结果
         return CommunityUtil.getJsonString(0,"发布成功！");

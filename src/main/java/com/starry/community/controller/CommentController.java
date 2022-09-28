@@ -41,7 +41,7 @@ public class CommentController implements CommunityConstant {
      * @param comment 包括entityType，entityId，content，可能有targetUser（如果是对评论的回复）
      */
     @RequestMapping(value = "/add/{discussPostId}",method = RequestMethod.POST)
-    public String addComment(Comment comment,@PathVariable("discussPostId") int discussPostId) {
+    public String addComment(Comment comment, @PathVariable("discussPostId") int discussPostId) {
         User user = hostHolder.getUser();
         comment.setUserId(user.getId());
         comment.setCreateTime(new Date());
@@ -75,6 +75,9 @@ public class CommentController implements CommunityConstant {
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
             Event event1 = new Event().setTopic(TOPIC_PUBLISH).setEntityId(discussPostId);
             eventProducer.fireEvent(event1);
+
+            //帖子score待更新
+            discussPostService.waitToUpdateScore(discussPostId);
         }
         return "redirect:/discussPost/showPostDetail/" + discussPostId;
     }

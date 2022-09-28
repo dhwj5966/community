@@ -6,6 +6,7 @@ import com.starry.community.bean.Message;
 import com.starry.community.bean.User;
 import com.starry.community.controller.demo;
 import com.starry.community.mapper.elasticsearch.DiscussPostRepository;
+import com.starry.community.service.DiscussPostService;
 import com.starry.community.service.ElasticSearchService;
 import com.starry.community.service.LikeService;
 import com.starry.community.util.RedisKeyUtil;
@@ -78,10 +79,13 @@ public class test {
     private com.starry.community.controller.demo demo;
 
     @Autowired
+    private DiscussPostService discussPostService;
+
+    @Autowired
     private Scheduler scheduler;
     @Test
     public void test1() throws InterruptedException, SchedulerException {
-        scheduler.deleteJob(new JobKey("alphaJob", "alphaJobGroup"));
+        scheduler.deleteJob(new JobKey("updateScoreJob","updateScoreJobGroup"));
     }
     @Test
     public void esst() {

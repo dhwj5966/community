@@ -12,6 +12,20 @@ import java.util.List;
 public interface DiscussPostService {
 
     /**
+     * 重新计算指定id的discusspost的score,不仅要更新数据库，还要更新ES(将事件提交给MQ)
+     * @param discussPostId
+     */
+    void updateScore(int discussPostId);
+
+
+    /**
+     * 把待更新分数的帖子id存入到redis的Set中，等待定时任务的执行，将所有待更新分数的帖子的Score更新一遍。
+     * @param discussPostId
+     */
+    void waitToUpdateScore(int discussPostId);
+
+
+    /**
      * 修改指定id的discusspost的type。
      * @param id
      * @param type
@@ -33,9 +47,10 @@ public interface DiscussPostService {
      * @param userId
      * @param offset 从查询结果的offset条开始
      * @param limit 记录数
+     * @param orderMode 排序模式，除置顶帖子外，orderMode == 0则按时间倒序,orderMode == 1则按score倒序。
      * @return
      */
-    List<DiscussPost> findDiscussPosts(int userId, int offset, int limit);
+    List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode);
 
     /**
      * 根据userId查询DiscussPost数，如果userId为0，则查询全部userId的DiscussPost数，不包括status=2的DiscussPost

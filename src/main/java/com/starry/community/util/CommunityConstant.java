@@ -1,5 +1,7 @@
 package com.starry.community.util;
 
+import java.util.Date;
+
 /**
  * @author Starry
  * @create 2022-09-05-12:09 AM
@@ -61,6 +63,8 @@ public interface CommunityConstant {
 
     String TOPIC_DELETE = "delete";
 
+    String TOPIC_SHARE = "share";
+
     int SYSTEM_USER_ID = 1;
 
     /**
@@ -77,7 +81,6 @@ public interface CommunityConstant {
      * 权限：版主
      */
     String AUTHORITY_MODERATOR = "moderator";
-
 
 
 }

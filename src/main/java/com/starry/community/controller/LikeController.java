@@ -33,8 +33,6 @@ public class LikeController implements CommunityConstant {
     private EventProducer eventProducer;
     @Autowired
     private DiscussPostService discussPostService;
-    @Autowired
-    private CommentService commentService;
 
     /**
      * 用户点赞，将当前实体的点赞数和用户点赞状态返回给前端
@@ -67,9 +65,17 @@ public class LikeController implements CommunityConstant {
             eventProducer.fireEvent(event);
         }
 
+
         HashMap<String, Object> map = new HashMap<>();
         map.put("count",entityLikeCount);
         map.put("likeStatus",likeStatus);
+
+        //如果是对帖子的点赞，将帖子id放入待更新集合中
+        if (entityType == ENTITY_TYPE_POST) {
+            discussPostService.waitToUpdateScore(postId);
+        }
+
+
         return CommunityUtil.getJsonString(0, null, map);
     }
 }

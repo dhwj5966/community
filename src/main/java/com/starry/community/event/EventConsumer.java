@@ -13,9 +13,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +36,37 @@ public class EventConsumer implements CommunityConstant {
     @Autowired
     private DiscussPostService discussPostService;
 
+    @Value("${wk.image.storage}")
+    private String storage;
+
+    @Value("${wk.image.command}")
+    private String command;
+
     private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
+
+    /**
+     * 异步 生成 长图
+     * @param record
+     */
+    @KafkaListener(topics = {TOPIC_SHARE})
+    public void handleShare(ConsumerRecord record) {
+        if (record == null || record.value() == null) {
+            logger.error("消息的内容为空");
+            return;
+        }
+        //通过record读取所需数据
+        Event event = JSONObject.parseObject(record.value().toString(), Event.class);
+        Map<String, Object> data = event.getData();
+        String htmlUrl = data.get("htmlUrl").toString();
+        String fileName = data.get("fileName").toString();
+        String suffix = data.get("suffix").toString();
+        String exec = command + " " + htmlUrl + " " + storage + "/" + fileName + suffix;
+        try {
+            Runtime.getRuntime().exec(exec);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @KafkaListener(topics = {TOPIC_DELETE})
     public void handleDelete(ConsumerRecord record) {
