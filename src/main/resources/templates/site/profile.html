@@ -20,13 +20,12 @@
 				<div class="position-relative">
 					<ul class="nav nav-tabs">
 						<li class="nav-item">
-							<a class="nav-link active" href="profile.html">个人信息</a>
+							<a class="nav-link active">个人信息</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="my-post.html">我的帖子</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="my-reply.html">我的回复</a>
+							<a class="nav-link" th:href="@{|/user/postrecord/${user.id}|}">
+								<i th:text="${self?'我':'TA'}"></i>的帖子
+							</a>
 						</li>
 					</ul>
 				</div>

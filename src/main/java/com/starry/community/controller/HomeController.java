@@ -46,6 +46,9 @@ public class HomeController {
         //
         page.setRows(discussPostService.findDiscussPostsPostRows(0));//查询总数据数量，并封装到page对象中
         page.setPath("/index?orderMode=" + orderMode);
+        if (page.getCurrent() > page.getTotal()) {
+            page.setCurrent(page.getTotal());
+        }
         List<DiscussPost> list =
                 discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit(), orderMode);
         List<Map<String,Object>> discussPosts = new ArrayList<>();
@@ -58,6 +61,7 @@ public class HomeController {
                 discussPosts.add(map);
             }
         }
+
         model.addAttribute("discussPosts",discussPosts);
         model.addAttribute("page",page);
         model.addAttribute("orderMode", orderMode);

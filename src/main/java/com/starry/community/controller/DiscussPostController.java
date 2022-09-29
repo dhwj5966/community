@@ -120,6 +120,9 @@ public class DiscussPostController implements CommunityConstant {
         page.setLimit(5);
         page.setPath("/discussPost/showPostDetail/" + postId);
         page.setRows(discussPost.getCommentCount());
+        if (page.getCurrent() > page.getTotal()) {
+            page.setCurrent(page.getTotal());
+        }
         List<Comment> comments = commentService.findComments(ENTITY_TYPE_POST,
                 discussPost.getId(),page.getOffset(),page.getLimit());
         for (Comment comment : comments) {

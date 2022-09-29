@@ -3,7 +3,10 @@ package com.starry.community.controller;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.starry.community.annotation.CheckLogin;
+import com.starry.community.bean.DiscussPost;
+import com.starry.community.bean.Page;
 import com.starry.community.bean.User;
+import com.starry.community.service.DiscussPostService;
 import com.starry.community.service.FollowService;
 import com.starry.community.service.LikeService;
 import com.starry.community.service.UserService;
@@ -11,6 +14,7 @@ import com.starry.community.util.CommunityConstant;
 import com.starry.community.util.CommunityUtil;
 import com.starry.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Starry
@@ -39,14 +47,6 @@ public class UserController implements CommunityConstant {
     //文件上传的路径，这里不要写死，因为开发是在windows环境下，部署是在linux环境，最终部署的时候只需要改配置文件就可以了。
     @Value("${community.path.upload}")
     private String uploadPath;
-
-    //域名
-    @Value("${community.path.domain}")
-    private String domain;
-
-    //项目名
-    @Value("${server.servlet.context-path}")
-    private String contextPath;
 
     @Autowired
     private UserService userService;
@@ -70,6 +70,38 @@ public class UserController implements CommunityConstant {
 
     @Value(value="${qiniu.bucket.header.url}")
     private String headerBucketUrl;
+
+    @Autowired
+    private DiscussPostService discussPostService;
+
+    @RequestMapping(value = "/postrecord/{userId}", method = RequestMethod.GET)
+    public String getDiscussPostByUser(@PathVariable("userId") int userId, Model model, Page page) {
+        User user = userService.findUserById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在！");
+        }
+        page.setLimit(5);
+        page.setRows(discussPostService.findDiscussPostsPostRows(userId));
+        page.setPath("/user/postrecord/" + userId);
+        if (page.getCurrent() > page.getTotal()) {
+            page.setCurrent(page.getTotal());
+        }
+        List<DiscussPost> discussPosts2 =
+                discussPostService.findDiscussPosts(userId, page.getOffset(), page.getLimit(), 0);
+        List<Map<String, Object>> discussPosts = new ArrayList<>();
+        if (discussPosts2 != null) {
+            for (DiscussPost post : discussPosts2) {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("post", post);
+                map.put("likeCount", likeService.findEntityLikeCount(ENTITY_TYPE_POST, post.getId()));
+                discussPosts.add(map);
+            }
+        }
+        model.addAttribute("discussPosts", discussPosts);
+        model.addAttribute("user", user);
+        return "site/my-post";
+    }
+
 
     /**
      * 获取个人设置页面
@@ -147,9 +179,14 @@ public class UserController implements CommunityConstant {
         if (hostHolder.getUser() != null) {
             followStatus = followService.getFollowStatus(hostHolder.getUser().getId(),ENTITY_TYPE_USER,userId);
         }
+        boolean isUserself = false;
+        if (hostHolder.getUser() != null) {
+            isUserself = hostHolder.getUser().getId() == user.getId();
+        }
         model.addAttribute("followersCount",followersCount);
         model.addAttribute("followeeCount",followeeCount);
         model.addAttribute("followStatus",followStatus);
+        model.addAttribute("self", isUserself);
         return "/site/profile";
     }
 

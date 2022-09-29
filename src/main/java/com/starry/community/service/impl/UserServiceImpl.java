@@ -27,10 +27,10 @@ import java.util.concurrent.TimeUnit;
 public class UserServiceImpl implements UserService, CommunityConstant {
     @Autowired
     private UserMapper userMapper;
-    @Value("http://localhost:8080/")
+    @Value("${community.path.domain}")
     private String domain;
 
-    @Value("community")
+    @Value("${server.servlet.context-path}")
     private String contextPath;
 
     @Autowired

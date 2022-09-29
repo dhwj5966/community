@@ -88,6 +88,9 @@ public class FollowController implements CommunityConstant {
         page.setPath("/follower/" + userId);
         page.setRows((int) followService.getFollowersCount(userId));
         page.setLimit(10);
+        if (page.getCurrent() > page.getTotal()) {
+            page.setCurrent(page.getTotal());
+        }
         List<Map<String, Object>> followers =
                 followService.getFollowers(userId, page.getOffset(), page.getLimit());
         //补充当前用户对followers中用户的关注状态
@@ -131,6 +134,9 @@ public class FollowController implements CommunityConstant {
         page.setPath("/followee/" + userId);
         page.setRows((int) followService.getFolloweeCount(userId, ENTITY_TYPE_USER));
         page.setLimit(10);
+        if (page.getCurrent() > page.getTotal()) {
+            page.setCurrent(page.getTotal());
+        }
         List<Map<String, Object>> followees =
                 followService.getFollowees(userId, page.getOffset(), page.getLimit());
         //补充当前用户对followers中用户的关注状态

@@ -53,6 +53,9 @@ public class MessageController implements CommunityConstant {
         page.setLimit(5);
         page.setPath("/message/notification/detail/" + topic);
         page.setRows(messageService.findNotificationsCountByUserIdAndTopic(userId,topic));
+        if (page.getCurrent() > page.getTotal()) {
+            page.setCurrent(page.getTotal());
+        }
         //
         List<Message> notifications =
                 messageService.findNotifications(userId, topic, page.getOffset(), page.getLimit());
@@ -177,6 +180,9 @@ public class MessageController implements CommunityConstant {
         page.setLimit(5);
         User user = hostHolder.getUser();
         page.setRows(messageService.findConversationsRows(user.getId()));
+        if (page.getCurrent() > page.getTotal()) {
+            page.setCurrent(page.getTotal());
+        }
         List<Message> conversations = messageService.findConversations
                 (user.getId(), page.getOffset(), page.getLimit());
         List<Map<String, Object>> list = new ArrayList<>();
@@ -205,6 +211,9 @@ public class MessageController implements CommunityConstant {
              Page page, @PathVariable("targetUserId") int targetUserId) {
         page.setRows(messageService.findMessagesRowsByConversationId(conversationId));
         page.setPath("/message/getDetailPage/" + conversationId + "/" + targetUserId);
+        if (page.getCurrent() > page.getTotal()) {
+            page.setCurrent(page.getTotal());
+        }
         List<Message> messages =
                 messageService.findMessagesByConversationId(conversationId, page.getOffset(), page.getLimit());
         List<Integer> ids = new ArrayList<>();
