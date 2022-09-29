@@ -27,13 +27,15 @@ public interface UserService {
     int updatePasswordById(int userId, String targetPassword);
 
     /**
-     * 修改指定id的用户的头像的路径
+     * 修改指定id的用户的头像的路径,并且需要修改redis中 login:ticket -> user数据，否则头像不更新
      *
      * @param userId
      * @param headerUrl
      * @return
      */
-    int updateHeaderUrl(int userId, String headerUrl);
+    int updateHeaderUrl(int userId, String headerUrl, String ticket);
+
+
 
 
 
@@ -64,6 +66,8 @@ public interface UserService {
     /**
      * 根据凭证去查询已登录用户，如果存在已登录用户，则返回该用户对象。
      * 如果不存在该已登录用户，则返回null
+     * 启动缓存策略，如果缓存中查到用户，则从缓存中读取，如果没查到，则从数据库中查，并更新缓存
+     * 如果修改了用户需要清理缓存。
      * @param ticket
      * @return
      */

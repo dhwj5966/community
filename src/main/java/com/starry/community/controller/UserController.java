@@ -1,5 +1,7 @@
 package com.starry.community.controller;
 
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import com.starry.community.annotation.CheckLogin;
 import com.starry.community.bean.User;
 import com.starry.community.service.FollowService;
@@ -57,9 +59,36 @@ public class UserController implements CommunityConstant {
     @Autowired
     private FollowService followService;
 
+    @Value(value="${qiniu.ak}")
+    private String accessKey;
 
+    @Value(value="${qiniu.sk}")
+    private String secretKey;
+
+    @Value(value="${qiniu.bucket.header.name}")
+    private String headerBucketName;
+
+    @Value(value="${qiniu.bucket.header.url}")
+    private String headerBucketUrl;
+
+    /**
+     * 获取个人设置页面
+     * @return
+     */
     @RequestMapping(value = "/setting", method = RequestMethod.GET)
-    public String getSettingPage() {
+    public String getSettingPage(Model model) {
+        //上传文件名称
+        String fileName = CommunityUtil.generateUUID();
+        //设置响应信息
+        StringMap policy = new StringMap();
+        policy.put("returnBody", CommunityUtil.getJsonString(0));
+        //生成上传凭证
+        Auth auth = Auth.create(accessKey, secretKey);
+        String uploadToken = auth.uploadToken(headerBucketName, fileName, 3600, policy);
+
+        model.addAttribute("uploadToken", uploadToken);
+        model.addAttribute("fileName", fileName);
+
         return "/site/setting";
     }
 
@@ -124,58 +153,75 @@ public class UserController implements CommunityConstant {
         return "/site/profile";
     }
 
-
     /**
-     * 接收用户上传头像的请求
+     * 更新当前用户的headerUrl
+     * @param fileName
+     * @return
      */
-    @RequestMapping(value = "/setting/upload", method = RequestMethod.POST)
-    public String uploadPhoto(MultipartFile multipartFile, Model model) {
-        /*
-            怎么实现功能呢？
-            将用户上传的文件按一定的命名规范，存到硬盘里
-         */
-        if (multipartFile == null) {
-            model.addAttribute("error", "您还没有选择文件！");
-            return "/site/setting";
+    @RequestMapping(path = "/header/url", method = RequestMethod.POST)
+    @ResponseBody
+    public String updateHeaderUrl(String fileName,@CookieValue(value = "ticket", defaultValue = "") String ticket) {
+        if (StringUtils.isBlank(fileName)) {
+            return CommunityUtil.getJsonString(1, "文件名不能为空");
         }
-        try {
-            if (multipartFile.getBytes().length >= 20 * 1024 * 1024) {
-                model.addAttribute("error", "上传文件的大小不能超过20M");
-                return "/site/setting";
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        String originalFilename = multipartFile.getOriginalFilename();
-        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
-        if (StringUtils.isBlank(suffix) ||
-                (!suffix.equals(".png") && !suffix.equals(".jpg") && !suffix.equals(".jfif"))) {
-            model.addAttribute("error",
-                    "上传的文件格式错误，请上传【png】、【jpg】或【jfif】格式的文件");
-            return "/site/setting";
-        }
-        //如果已经通过所有验证
-        originalFilename = CommunityUtil.generateUUID() + suffix;
-        try {
-            multipartFile.transferTo(new File(uploadPath + "/" + originalFilename));
-        } catch (IOException e) {
-            logger.error("上传文件失败" + e.getMessage());
-            throw new RuntimeException("上传文件失败");
-        }
-
-        User currentUser = hostHolder.getUser();
-        if (currentUser == null) {
-            model.addAttribute("error", "请先登录");
-            return "/site/setting";
-        }
-        userService.updateHeaderUrl(currentUser.getId(),
-                domain + contextPath + "/user/header/" + originalFilename);
-        //http://localhost:8080/community/user/header/xxx.png
-        return "redirect:/index";
+        String url = headerBucketUrl + "/" + fileName;
+        userService.updateHeaderUrl(hostHolder.getUser().getId(), url, ticket);
+        return CommunityUtil.getJsonString(0);
     }
 
+
+
+//    /**
+//     * 接收用户上传头像的请求，已经废弃
+//     */
+//    @RequestMapping(value = "/setting/upload", method = RequestMethod.POST)
+//    public String uploadPhoto(MultipartFile multipartFile, Model model) {
+//        /*
+//            怎么实现功能呢？
+//            将用户上传的文件按一定的命名规范，存到硬盘里
+//         */
+//        if (multipartFile == null) {
+//            model.addAttribute("error", "您还没有选择文件！");
+//            return "/site/setting";
+//        }
+//        try {
+//            if (multipartFile.getBytes().length >= 20 * 1024 * 1024) {
+//                model.addAttribute("error", "上传文件的大小不能超过20M");
+//                return "/site/setting";
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        String originalFilename = multipartFile.getOriginalFilename();
+//        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+//        if (StringUtils.isBlank(suffix) ||
+//                (!suffix.equals(".png") && !suffix.equals(".jpg") && !suffix.equals(".jfif"))) {
+//            model.addAttribute("error",
+//                    "上传的文件格式错误，请上传【png】、【jpg】或【jfif】格式的文件");
+//            return "/site/setting";
+//        }
+//        //如果已经通过所有验证
+//        originalFilename = CommunityUtil.generateUUID() + suffix;
+//        try {
+//            multipartFile.transferTo(new File(uploadPath + "/" + originalFilename));
+//        } catch (IOException e) {
+//            logger.error("上传文件失败" + e.getMessage());
+//            throw new RuntimeException("上传文件失败");
+//        }
+//
+//        User currentUser = hostHolder.getUser();
+//        if (currentUser == null) {
+//            model.addAttribute("error", "请先登录");
+//            return "/site/setting";
+//        }
+//        userService.updateHeaderUrl(currentUser.getId(),
+//                domain + contextPath + "/user/header/" + originalFilename);
+//        //http://localhost:8080/community/user/header/xxx.png
+//        return "redirect:/index";
+//    }
+
     /**
-     * 根据文件名获取用户头像
+     * 根据文件名获取用户头像,废弃
      */
     @GetMapping("/header/{filename}")
     public void getHeader(HttpServletResponse response, @PathVariable("filename") String filename) {

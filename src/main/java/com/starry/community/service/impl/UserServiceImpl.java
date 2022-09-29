@@ -3,10 +3,7 @@ package com.starry.community.service.impl;
 import com.starry.community.bean.User;
 import com.starry.community.mapper.UserMapper;
 import com.starry.community.service.UserService;
-import com.starry.community.util.CommunityConstant;
-import com.starry.community.util.CommunityUtil;
-import com.starry.community.util.EmailSender;
-import com.starry.community.util.RedisKeyUtil;
+import com.starry.community.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -95,7 +94,7 @@ public class UserServiceImpl implements UserService, CommunityConstant {
     }
 
     @Override
-    public int updateHeaderUrl(int userId, String headerUrl) {
+    public int updateHeaderUrl(int userId, String headerUrl, String ticket) {
         if (StringUtils.isBlank(headerUrl)) {
             throw new RuntimeException("头像Url不能为空");
         }
@@ -103,10 +102,20 @@ public class UserServiceImpl implements UserService, CommunityConstant {
         //如果真的修改了数据库中的数据，则清理缓存
         if (i != 0) {
             clearCache(userId);
+            //更新Redis中login:ticket -> user 数据中，user的headerUrl
+            if (!StringUtils.isBlank(ticket)) {
+                String loginUserKey = RedisKeyUtil.getLoginUserKey(ticket);
+                User user = (User) redisTemplate.opsForValue().get(loginUserKey);
+                if (user != null) {
+                    user.setHeaderUrl(headerUrl);
+                    Long timeToExpire = redisTemplate.getExpire(loginUserKey);
+                    redisTemplate.opsForValue().set(loginUserKey, user,timeToExpire, TimeUnit.SECONDS);
+                }
+            }
+
         }
         return i;
     }
-
 
 
     @Override
@@ -164,7 +173,9 @@ public class UserServiceImpl implements UserService, CommunityConstant {
     @Override
     public User findLoginUserByTicket(String ticket) {
         String loginUserKey = RedisKeyUtil.getLoginUserKey(ticket);
-        return (User) redisTemplate.opsForValue().get(loginUserKey);
+        User user = (User) redisTemplate.opsForValue().get(loginUserKey);
+
+        return user;
     }
 
     @Override

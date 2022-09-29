@@ -115,10 +115,7 @@ public class test {
     @Test
     public void query1() {
         //解析日期
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy:MM:dd");
-        String format = dateTimeFormatter.format(now);
-        System.out.println(format);
+        System.out.println(redisTemplate.getExpire("login:0682afd750cc4ac3aa0e28272e834f77"));
     }
 
 

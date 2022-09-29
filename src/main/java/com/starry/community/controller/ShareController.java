@@ -34,15 +34,18 @@ public class ShareController implements CommunityConstant {
     @Autowired
     private EventProducer eventProducer;
 
-    //项目的域名
-    @Value(value = "${community.path.domain}")
-    private String domain;
+//    //项目的域名
+//    @Value(value = "${community.path.domain}")
+//    private String domain;
+//
+//    @Value(value = "${server.servlet.context-path}")
+//    private String contextPath;
+//
+//    @Value("${wk.image.storage}")
+//    private String storage;
 
-    @Value(value = "${server.servlet.context-path}")
-    private String contextPath;
-
-    @Value("${wk.image.storage}")
-    private String storage;
+    @Value(value="${qiniu.bucket.share.url}")
+    private String shareBucketUrl;
 
 
     @RequestMapping(path = "/share", method = RequestMethod.GET)
@@ -58,46 +61,47 @@ public class ShareController implements CommunityConstant {
                         .setData("suffix", ".png");
         eventProducer.fireEvent(event);
         Map<String, Object> map = new HashMap<>();
-        map.put("shareUrl", domain + contextPath + "/share/image/" + fileName);
+        map.put("shareUrl", shareBucketUrl + "/" + fileName);
 
         return CommunityUtil.getJsonString(0, null, map);
     }
 
-    @RequestMapping(path = "/share/image/{fileName}", method = RequestMethod.GET)
-    public void getShareImage(@PathVariable("fileName") String fileName, HttpServletResponse response) {
-        if (StringUtils.isBlank(fileName)) {
-            throw new IllegalArgumentException("文件名不能为空！");
-        }
-        response.setContentType("image/png");
-        File file = new File(storage + "/" + fileName + ".png");
-        OutputStream outputStream = null;
-        InputStream inputStream = null;
-        try {
-            outputStream = response.getOutputStream();
-            inputStream = new FileInputStream(file);
-            byte[] buffer = new byte[1024 * 2];
-            int l;
-            while ((l = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, l);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
+
+//    @RequestMapping(path = "/share/image/{fileName}", method = RequestMethod.GET)
+//    public void getShareImage(@PathVariable("fileName") String fileName, HttpServletResponse response) {
+//        if (StringUtils.isBlank(fileName)) {
+//            throw new IllegalArgumentException("文件名不能为空！");
+//        }
+//        response.setContentType("image/png");
+//        File file = new File(storage + "/" + fileName + ".png");
+//        OutputStream outputStream = null;
+//        InputStream inputStream = null;
+//        try {
+//            outputStream = response.getOutputStream();
+//            inputStream = new FileInputStream(file);
+//            byte[] buffer = new byte[1024 * 2];
+//            int l;
+//            while ((l = inputStream.read(buffer)) != -1) {
+//                outputStream.write(buffer, 0, l);
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            if (outputStream != null) {
+//                try {
+//                    outputStream.close();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//            if (inputStream != null) {
+//                try {
+//                    inputStream.close();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        }
+//    }
 
 }
