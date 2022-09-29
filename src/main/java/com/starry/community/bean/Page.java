@@ -78,8 +78,8 @@ public class Page {
      * @return 当前页的分页条的前置页的起始页号
      */
     public int getFrom() {
-        if (current >= 3) {
-            return current - 2;
+        if (current >= 5) {
+            return current - 4;
         } else {
             return 1;
         }
@@ -90,8 +90,8 @@ public class Page {
      * @return 当前页的分页条的后置页的结尾页号
      */
     public int getTo() {
-        if (current <= getTotal() - 2) {
-            return current + 2;
+        if (current <= getTotal() - 4) {
+            return current + 4;
         } else {
             return getTotal();
         }
