@@ -74,7 +74,6 @@ public class DiscussPostServiceImpl implements DiscussPostService, CommunityCons
                     //查询数据库，初始化缓存的逻辑
                     @Override
                     public @Nullable List<DiscussPost> load(String key) throws Exception {
-                        System.out.println("芜湖！");
                         if (StringUtils.isBlank(key)) {
                             throw new IllegalArgumentException("参数错误");
                         }
